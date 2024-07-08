@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://dr8idbbowftx7" path="res://player/player_1.png" id="1_mf1em"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_7irrr"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_a5fn7"]
 atlas = ExtResource("1_mf1em")
 region = Rect2(13, 0, 130, 140)
 
@@ -42,8 +42,13 @@ region = Rect2(1053, 0, 130, 140)
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_7irrr")
+"texture": SubResource("AtlasTexture_a5fn7")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
 }, {
+"frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_f1dba")
 }, {
@@ -69,6 +74,6 @@ animations = [{
 "texture": SubResource("AtlasTexture_u0mn6")
 }],
 "loop": true,
-"name": &"default",
+"name": &"walking",
 "speed": 7.0
 }]

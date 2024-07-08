@@ -24,8 +24,15 @@ public partial class Player : CharacterBody2D
 
 	public override void _Process(double delta) {
 		if (Mathf.Abs(direction) > 0.01) {
-			this.sprite.Play("default");
+			if (direction < 0) {
+				this.sprite.Play("walking");
+				this.sprite.FlipH = true;
+			} else {
+				this.sprite.Play("walking");
+				this.sprite.FlipH = false;
+			}
 		} else {
+			this.sprite.Play("idle");
 			this.sprite.Stop();
 		}
 	}
@@ -61,8 +68,8 @@ public partial class Player : CharacterBody2D
 		float y = velocity_normalized.Y*90;
 
 		
-		float cam_pos_x = Mathf.MoveToward(this.cam.Position.X, x, Mathf.Sqrt(Math.Abs(this.cam.Position.X-x)));
-		float cam_pos_y = Mathf.MoveToward(this.cam.Position.Y, -y, Mathf.Sqrt(Math.Abs(this.cam.Position.Y+y)));
+		float cam_pos_x = Mathf.MoveToward(this.cam.Position.X, x, Mathf.Sqrt(Math.Abs(this.cam.Position.X-x))*(float) delta*30);
+		float cam_pos_y = Mathf.MoveToward(this.cam.Position.Y, -y, Mathf.Sqrt(Math.Abs(this.cam.Position.Y+y))*(float) delta*30);
 
 		this.cam.Position = new Godot.Vector2(cam_pos_x,cam_pos_y);
 		if (velocity.Length() > 160) {
@@ -70,9 +77,7 @@ public partial class Player : CharacterBody2D
 		} else {
 			this.cam.Zoom = new Godot.Vector2(0.5f,0.5f);
 		}
-		GD.Print(this.cam.Zoom);
 		
-
 		MoveAndSlide();
 	}
 }
