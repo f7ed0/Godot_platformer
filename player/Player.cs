@@ -1,11 +1,10 @@
 using Godot;
 using System;
-using System.Numerics;
 
 public partial class Player : CharacterBody2D
 {
-	public const float Speed = 300.0f;
-	public const float JumpVelocity = 400.0f;
+	public const float Speed = 500.0f;
+	public const float JumpVelocity = 650.0f;
 
 	public float direction;
 
@@ -39,15 +38,23 @@ public partial class Player : CharacterBody2D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		Godot.Vector2 velocity = Velocity;
+		Rect2 view = GetViewportRect();
+
+		float new_aspect_ratio = 0.5f*(view.Size.Y/720);
+
+		cam.Zoom = new Vector2(new_aspect_ratio,new_aspect_ratio);
+
+		Vector2 velocity = Velocity;
 
 		// Add the gravity.
-		//if (!IsOnFloor())
-		//	velocity.Y += gravity * (float)delta;
+		if (!IsOnFloor()) {
+			velocity.Y += gravity * (float)delta;
+		}
 
 		// Handle Jump.
-		//if (Input.IsActionJustPressed("ui_accept") && IsOnFloor())
-		//	velocity.Y = -JumpVelocity;
+		if (Input.IsActionJustPressed("jump") && IsOnFloor()) {
+			velocity.Y = -JumpVelocity;
+		}
 
 		// Get the input direction and handle the movement/deceleration.
 		// As good practice, you should replace UI actions with custom gameplay actions.
@@ -63,21 +70,20 @@ public partial class Player : CharacterBody2D
 
 		Velocity = velocity;
 
-		Godot.Vector2 velocity_normalized = velocity.Normalized();
-		float x = velocity_normalized.X*160;
-		float y = velocity_normalized.Y*90;
 
-		
-		float cam_pos_x = Mathf.MoveToward(this.cam.Position.X, x, Mathf.Sqrt(Math.Abs(this.cam.Position.X-x))*(float) delta*30);
-		float cam_pos_y = Mathf.MoveToward(this.cam.Position.Y, -y, Mathf.Sqrt(Math.Abs(this.cam.Position.Y+y))*(float) delta*30);
-
-		this.cam.Position = new Godot.Vector2(cam_pos_x,cam_pos_y);
-		if (velocity.Length() > 160) {
-			this.cam.Zoom = new Godot.Vector2(1.1f/MathF.Log10(velocity.Length()),1.2f/MathF.Log10(velocity.Length()));
-		} else {
-			this.cam.Zoom = new Godot.Vector2(0.5f,0.5f);
-		}
-		
 		MoveAndSlide();
+
+		// ------------CAMERA HANDLING-----------------
+
+		Vector2 velocity_normalized = velocity.Normalized();
+
+		float x = velocity_normalized.X*300;
+		float y = Mathf.Min(0, -670-this.Position.Y);
+
+		
+		float cam_pos_x = Mathf.MoveToward(this.cam.Position.X, x, Mathf.Sqrt(Math.Abs(this.cam.Position.X-x))*(float) delta*20);
+		float cam_pos_y = Mathf.MoveToward(this.cam.Position.Y, y, Mathf.Sqrt(Math.Abs(this.cam.Position.Y-y))*(float) delta*10);
+		
+		this.cam.Position = new Vector2(cam_pos_x,y);
 	}
 }
