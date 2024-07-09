@@ -1,15 +1,17 @@
 using Godot;
 using System;
+using System.Reflection.Metadata;
 
 public partial class Player : CharacterBody2D
 {
 	public const float Speed = 500.0f;
-	public const float JumpVelocity = 650.0f;
+	public const float JumpVelocity = 550.0f;
 
 	public float direction;
-
 	public Camera2D cam;
 	public AnimatedSprite2D sprite;
+	public bool is_jumping;
+	public double jump_timer;
 
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
@@ -19,6 +21,7 @@ public partial class Player : CharacterBody2D
 	{
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
+		is_jumping = false;
 	}
 
 	public override void _Process(double delta) {
@@ -47,14 +50,8 @@ public partial class Player : CharacterBody2D
 		Vector2 velocity = Velocity;
 
 		// Add the gravity.
-		if (!IsOnFloor()) {
-			velocity.Y += gravity * (float)delta;
-		}
-
 		// Handle Jump.
-		if (Input.IsActionJustPressed("jump") && IsOnFloor()) {
-			velocity.Y = -JumpVelocity;
-		}
+		velocity.Y += HandleJump(delta);
 
 		// Get the input direction and handle the movement/deceleration.
 		// As good practice, you should replace UI actions with custom gameplay actions.
@@ -85,5 +82,28 @@ public partial class Player : CharacterBody2D
 		float cam_pos_y = Mathf.MoveToward(this.cam.Position.Y, y, Mathf.Sqrt(Math.Abs(this.cam.Position.Y-y))*(float) delta*10);
 		
 		this.cam.Position = new Vector2(cam_pos_x,y);
+	}
+
+	public float HandleJump(double delta) {
+		float velocity = 0;
+		jump_timer -= delta;
+		if (!IsOnFloor()) {
+			velocity += gravity * (float)delta;
+		}
+		if (Input.IsActionJustPressed("jump") && IsOnFloor()) {
+			GD.Print("IN");
+			velocity = -JumpVelocity;
+			is_jumping = true;
+			this.jump_timer = 0.2;
+		}
+		if (Input.IsActionPressed("jump") && is_jumping && jump_timer > 0) {
+			if (velocity > -0.005f*JumpVelocity) {
+				velocity = -0.005f*JumpVelocity;
+			}
+		} else if(!Input.IsActionPressed("jump") && is_jumping) {
+			GD.Print("OUT");
+			is_jumping = false;
+		}
+		return velocity;
 	}
 }
