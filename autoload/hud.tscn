@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://deyomf4fmld8x"]
+
+[node name="HUD" type="CanvasLayer"]
+
+[node name="hud_position_label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "BONJOUR
+"

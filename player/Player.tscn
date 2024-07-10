@@ -3,20 +3,22 @@
 [ext_resource type="Script" path="res://player/Player.cs" id="1_4wwkc"]
 [ext_resource type="SpriteFrames" uid="uid://vdxng17jev72" path="res://player/player_1.tres" id="1_nhrqf"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_os18j"]
-size = Vector2(107, 129)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_oyphp"]
+height = 38.0
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_4wwkc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-1.5, 5.5)
-shape = SubResource("RectangleShape2D_os18j")
+position = Vector2(0.5, 0)
+shape = SubResource("CapsuleShape2D_oyphp")
 
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(6, -21)
 sprite_frames = ExtResource("1_nhrqf")
-animation = &"idle"
+animation = &"walking"
+frame_progress = 0.932106
 
 [node name="PlayerCamera" type="Camera2D" parent="."]
 position = Vector2(-1, 0)
-zoom = Vector2(0.5, 0.5)
+zoom = Vector2(2.5, 2.5)
