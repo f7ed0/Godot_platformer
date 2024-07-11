@@ -10,11 +10,10 @@ public partial class Player : CharacterBody2D
 	public float default_zoom;
 	public Camera2D cam;
 	public AnimatedSprite2D sprite;
-	public AnimationPlayer animator;
 	public bool is_jumping;
 	public double jump_timer;
 	public double was_on_floor;
-
+	public AnimationPlayer animation;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -23,29 +22,33 @@ public partial class Player : CharacterBody2D
 	{
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
-		animator = GetNode<AnimationPlayer>("AnimationPlayer");
+		animation = GetNode<AnimationPlayer>("AnimationPlayer");
 		default_zoom = cam.Zoom.X;
 		is_jumping = false;
+		this.sprite.Play();
 	}
 
 	public override void _Process(double delta) {
 		if (!IsOnFloor()) {
-			//this.sprite.Play("jump");
-		} else if (Mathf.Abs(direction) > 0.01) {
-			if (direction < 0) {
-				this.animator.Play("walk");
-				this.sprite.FlipH = true;
+			this.animation.Play("jump");
+		} else if (Input.IsActionJustPressed("slide")) {
+			this.animation.Play("slide_start");
+			this.animation.Queue("slide");
+		} else if(Input.IsActionJustReleased("slide")) {
+
+		} else if (!Input.IsActionPressed("slide")){
+			if(Mathf.Abs(direction) > 0.01) {
+				if (direction < 0) {
+					this.animation.Play("walking");
+					this.sprite.FlipH = true;
+				} else {
+					this.animation.Play("walking");
+					this.sprite.FlipH = false;
+				}
 			} else {
-				this.animator.Play("walk");
-				this.sprite.FlipH = false;
+				this.animation.Play("idle");
 			}
-		} else {
-			//this.sprite.Play("idle");
-		}
-		if (Input.GetActionStrength("slide") > 0.1) {
-			this.animator.Play("slide");
-			
-		}
+		} 
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -65,11 +68,21 @@ public partial class Player : CharacterBody2D
 		// Get the input direction and handle the movement/deceleration.
 		// As good practice, you should replace UI actions with custom gameplay actions.
 		this.direction = Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left");
-		if (direction != 0) {
-			velocity.X = this.direction * Speed;
+		if(Input.IsActionPressed("slide")) {
+			if(Input.IsActionJustPressed("slide")) {
+				velocity.X = Mathf.Sign(velocity.X)*Speed*1.2f;
+				GD.Print("LEZGONGUE");
+			} else {
+				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed*0.4f);
+			}
 		} else {
-			velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
+			if (direction != 0) {
+				velocity.X = this.direction * Speed;
+			} else {
+				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
+			}
 		}
+
 
 		Velocity = velocity;
 
