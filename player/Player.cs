@@ -14,6 +14,9 @@ public partial class Player : CharacterBody2D
 	public double jump_timer;
 	public double was_on_floor;
 	public AnimationPlayer animation;
+	public bool is_sliding;
+	public double sliding_time;
+	public bool launch_me;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -29,25 +32,33 @@ public partial class Player : CharacterBody2D
 	}
 
 	public override void _Process(double delta) {
+		sliding_time -= delta;
 		if (!IsOnFloor()) {
 			this.animation.Play("jump");
-		} else if (Input.IsActionJustPressed("slide")) {
-			this.animation.Play("slide_start");
-			this.animation.Queue("slide");
-		} else if(Input.IsActionJustReleased("slide")) {
-
-		} else if (!Input.IsActionPressed("slide")){
-			if(Mathf.Abs(direction) > 0.01) {
-				if (direction < 0) {
-					this.animation.Play("walking");
-					this.sprite.FlipH = true;
-				} else {
-					this.animation.Play("walking");
-					this.sprite.FlipH = false;
-				}
-			} else {
-				this.animation.Play("idle");
+			is_sliding = false;
+		} else {
+			if (Input.IsActionJustPressed("slide") && !is_sliding) {
+				this.animation.Play("slide_start");
+				this.animation.Queue("slide");
+				launch_me = true;
+				is_sliding = true;
+				sliding_time = 0.5f;
 			}
+			if (!is_sliding){
+				if(Mathf.Abs(direction) > 0.01) {
+					if (direction < 0) {
+						this.animation.Play("walking");
+						this.sprite.FlipH = true;
+					} else {
+						this.animation.Play("walking");
+						this.sprite.FlipH = false;
+					}
+				} else {
+					this.animation.Play("idle");
+				}
+			} else if((!Input.IsActionPressed("slide") && sliding_time <= 0) || Mathf.Abs(Velocity.X) < Speed / 3f) {
+				is_sliding = false;
+			} 
 		} 
 	}
 
@@ -63,28 +74,29 @@ public partial class Player : CharacterBody2D
 
 		// Add the gravity.
 		// Handle Jump.
-		velocity.Y += HandleJump(delta);
+		velocity += HandleJump(delta);
 
 		// Get the input direction and handle the movement/deceleration.
 		// As good practice, you should replace UI actions with custom gameplay actions.
 		this.direction = Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left");
-		if(Input.IsActionPressed("slide")) {
-			if(Input.IsActionJustPressed("slide")) {
-				velocity.X = Mathf.Sign(velocity.X)*Speed*1.2f;
-			} else {
-				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed*0.9f*((float) delta));
-			}
+
+		if(launch_me) {
+			velocity.X += (this.sprite.FlipH ? -1 : 1)*Speed*0.5f;
+			launch_me = false;
+		} 
+
+		if(is_sliding) {
+			velocity.X = Mathf.MoveToward(velocity.X, 0, Speed*0.9f*((float) delta));
 		} else {
+			float real_speed = !IsOnFloor() ? Speed*0.1f : Speed;
 			if (direction != 0) {
-				velocity.X = this.direction * Speed;
+				velocity.X =  Mathf.MoveToward(velocity.X, this.direction * Speed, real_speed*(float) delta*60f);
 			} else {
-				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
+				velocity.X = Mathf.MoveToward(velocity.X, 0, real_speed*(float) delta*60f);
 			}
 		}
 
-
 		Velocity = velocity;
-
 
 		MoveAndSlide();
 
@@ -106,27 +118,32 @@ public partial class Player : CharacterBody2D
 		// ----------------------------------------------
 	}
 
-	public float HandleJump(double delta) {
-		float velocity = 0;
+	public Vector2 HandleJump(double delta) {
+		Vector2 velocity = new Vector2(0,0);
 		jump_timer -= delta;
 		if (!IsOnFloor()) {
-			velocity += gravity * (float)delta;
+			velocity.Y += gravity * (float)delta;
 			was_on_floor += delta;
 		} else {
 			was_on_floor = 0;
 		}
 		if (Input.IsActionJustPressed("jump") && (IsOnFloor() || was_on_floor < 0.2)) {
-			GD.Print("IN");
-			velocity = -JumpVelocity;
+			if(is_sliding) {
+				velocity.Y = -1.2f*JumpVelocity;
+				velocity.X = (this.sprite.FlipH ? -1 : 1)*Speed*2.5f;
+				this.jump_timer = 0;
+			} else {
+				velocity.Y = -JumpVelocity;
+				this.jump_timer = 0.2;
+			}
 			is_jumping = true;
-			this.jump_timer = 0.2;
+			
 		}
 		if (Input.IsActionPressed("jump") && is_jumping && jump_timer > 0) {
-			if (velocity > -0.005f*JumpVelocity) {
-				velocity = -0.005f*JumpVelocity;
+			if (velocity.Y > -0.005f*JumpVelocity) {
+				velocity.Y = -0.005f*JumpVelocity;
 			}
 		} else if(!Input.IsActionPressed("jump") && is_jumping) {
-			GD.Print("OUT");
 			is_jumping = false;
 		}
 		return velocity;
