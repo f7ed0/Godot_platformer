@@ -72,7 +72,7 @@ public partial class Player : CharacterBody2D
 			if(Input.IsActionJustPressed("slide")) {
 				velocity.X = Mathf.Sign(velocity.X)*Speed*1.2f;
 			} else {
-				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed*0.4f*(float)delta);
+				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed*0.9f*((float) delta));
 			}
 		} else {
 			if (direction != 0) {
