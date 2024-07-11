@@ -10,8 +10,10 @@ public partial class Player : CharacterBody2D
 	public float default_zoom;
 	public Camera2D cam;
 	public AnimatedSprite2D sprite;
+	public AnimationPlayer animator;
 	public bool is_jumping;
 	public double jump_timer;
+	public double was_on_floor;
 
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
@@ -21,23 +23,28 @@ public partial class Player : CharacterBody2D
 	{
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
+		animator = GetNode<AnimationPlayer>("AnimationPlayer");
 		default_zoom = cam.Zoom.X;
 		is_jumping = false;
 	}
 
 	public override void _Process(double delta) {
 		if (!IsOnFloor()) {
-			this.sprite.Play("jump");
+			//this.sprite.Play("jump");
 		} else if (Mathf.Abs(direction) > 0.01) {
 			if (direction < 0) {
-				this.sprite.Play("walking");
+				this.animator.Play("walk");
 				this.sprite.FlipH = true;
 			} else {
-				this.sprite.Play("walking");
+				this.animator.Play("walk");
 				this.sprite.FlipH = false;
 			}
 		} else {
-			this.sprite.Play("idle");
+			//this.sprite.Play("idle");
+		}
+		if (Input.GetActionStrength("slide") > 0.1) {
+			this.animator.Play("slide");
+			
 		}
 	}
 
@@ -92,8 +99,11 @@ public partial class Player : CharacterBody2D
 		jump_timer -= delta;
 		if (!IsOnFloor()) {
 			velocity += gravity * (float)delta;
+			was_on_floor += delta;
+		} else {
+			was_on_floor = 0;
 		}
-		if (Input.IsActionJustPressed("jump") && IsOnFloor()) {
+		if (Input.IsActionJustPressed("jump") && (IsOnFloor() || was_on_floor < 0.2)) {
 			GD.Print("IN");
 			velocity = -JumpVelocity;
 			is_jumping = true;
