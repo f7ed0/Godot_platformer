@@ -71,9 +71,8 @@ public partial class Player : CharacterBody2D
 		if(Input.IsActionPressed("slide")) {
 			if(Input.IsActionJustPressed("slide")) {
 				velocity.X = Mathf.Sign(velocity.X)*Speed*1.2f;
-				GD.Print("LEZGONGUE");
 			} else {
-				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed*0.4f);
+				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed*0.4f*(float)delta);
 			}
 		} else {
 			if (direction != 0) {
