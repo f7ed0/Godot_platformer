@@ -1,11 +1,16 @@
-[gd_resource type="SpriteFrames" load_steps=34 format=3 uid="uid://vdxng17jev72"]
+[gd_resource type="SpriteFrames" load_steps=36 format=3 uid="uid://vdxng17jev72"]
 
+[ext_resource type="Texture2D" uid="uid://cm1r132tfr3k1" path="res://player/Sprites/_JumpFallInbetween.png" id="1_fc2my"]
 [ext_resource type="Texture2D" uid="uid://dpnapkutatbs1" path="res://player/Sprites/_Idle.png" id="1_pbv4f"]
 [ext_resource type="Texture2D" uid="uid://bjw645qgldep2" path="res://player/Sprites/_Slide.png" id="1_vdj3e"]
 [ext_resource type="Texture2D" uid="uid://ddote0yblakp4" path="res://player/Sprites/_Run.png" id="2_82xn6"]
 [ext_resource type="Texture2D" uid="uid://bdodvrmuuh2b" path="res://player/Sprites/_Jump.png" id="2_epo88"]
 [ext_resource type="Texture2D" uid="uid://bu4mmdx2gflm1" path="res://player/Sprites/_SlideTransitionStart.png" id="4_pgalv"]
 [ext_resource type="Texture2D" uid="uid://k210h3jx1rpq" path="res://player/Sprites/_SlideTransitionEnd.png" id="5_blvx7"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s1bb8"]
+atlas = ExtResource("1_fc2my")
+region = Rect2(120, 0, 120, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ga8d3"]
 atlas = ExtResource("1_pbv4f")
@@ -117,6 +122,14 @@ region = Rect2(1080, 0, 120, 80)
 
 [resource]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s1bb8")
+}],
+"loop": true,
+"name": &"drop",
+"speed": 1.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ga8d3")

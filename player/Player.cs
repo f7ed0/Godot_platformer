@@ -4,7 +4,7 @@ using System;
 public partial class Player : CharacterBody2D
 {
 	public const float Speed = 200.0f;
-	public const float JumpVelocity = 250.0f;
+	public const float JumpVelocity = 400.0f;
 
 	public float direction;
 	public float default_zoom;
@@ -17,6 +17,7 @@ public partial class Player : CharacterBody2D
 	public bool is_sliding;
 	public double sliding_time;
 	public bool launch_me;
+	public int bonus_jump_count;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -34,7 +35,11 @@ public partial class Player : CharacterBody2D
 	public override void _Process(double delta) {
 		sliding_time -= delta;
 		if (!IsOnFloor()) {
-			this.animation.Play("jump");
+			if( is_jumping ){
+				this.animation.Play("jump");
+			}else {
+				this.animation.Play("drop");
+			}
 			is_sliding = false;
 		} else {
 			if (Input.IsActionJustPressed("slide") && !is_sliding) {
@@ -74,7 +79,7 @@ public partial class Player : CharacterBody2D
 
 		// Add the gravity.
 		// Handle Jump.
-		velocity += HandleJump(delta);
+		velocity = HandleJump(delta,Velocity);
 
 		// Get the input direction and handle the movement/deceleration.
 		// As good practice, you should replace UI actions with custom gameplay actions.
@@ -107,43 +112,48 @@ public partial class Player : CharacterBody2D
 		Vector2 velocity_normalized = velocity.Normalized();
 
 		float x = velocity_normalized.X*(250/default_zoom);
-		float y = Mathf.Min(0, -100-Position.Y);
+		float y = Mathf.Min(-velocity_normalized.Y*(350/default_zoom), -100-Position.Y);
 
 		
 		float cam_pos_x = Mathf.MoveToward(this.cam.Position.X, x, Mathf.Sqrt(Math.Abs(this.cam.Position.X-x))*(float) delta*5);
-		float cam_pos_y = Mathf.MoveToward(this.cam.Position.Y, y, Mathf.Sqrt(Math.Abs(this.cam.Position.Y-y))*(float) delta*5);
+		float cam_pos_y = Mathf.MoveToward(this.cam.Position.Y, y, Mathf.Sqrt(Math.Abs(this.cam.Position.Y-y))*(float) delta*7);
 		
 		this.cam.Position = new Vector2(cam_pos_x,cam_pos_y);
 
 		// ----------------------------------------------
 	}
 
-	public Vector2 HandleJump(double delta) {
-		Vector2 velocity = new Vector2(0,0);
+	public Vector2 HandleJump(double delta, Vector2 velocity) {
 		jump_timer -= delta;
 		if (!IsOnFloor()) {
 			velocity.Y += gravity * (float)delta;
 			was_on_floor += delta;
 		} else {
 			was_on_floor = 0;
+			bonus_jump_count = 1;
 		}
-		if (Input.IsActionJustPressed("jump") && (IsOnFloor() || was_on_floor < 0.2)) {
+		if (Input.IsActionJustPressed("jump") && (IsOnFloor() || was_on_floor < 0.1)) {
 			if(is_sliding) {
-				velocity.Y = -1.2f*JumpVelocity;
-				velocity.X = (this.sprite.FlipH ? -1 : 1)*Speed*2.5f;
+				velocity.Y = - JumpVelocity;
+				velocity.X = (this.sprite.FlipH ? -1 : 1)*Speed*3f;
 				this.jump_timer = 0;
 			} else {
 				velocity.Y = -JumpVelocity;
 				this.jump_timer = 0.2;
 			}
 			is_jumping = true;
-			
+
+		} else if (Input.IsActionJustPressed("jump") && bonus_jump_count > 0 && was_on_floor > 0.2) {
+			velocity.Y = -0.7f*JumpVelocity;
+			this.jump_timer = 0;
+			is_jumping = true;
+			bonus_jump_count --;
 		}
 		if (Input.IsActionPressed("jump") && is_jumping && jump_timer > 0) {
-			if (velocity.Y > -0.005f*JumpVelocity) {
-				velocity.Y = -0.005f*JumpVelocity;
+			if (velocity.Y > -0.5f*JumpVelocity) {
+				velocity.Y = -0.5f*JumpVelocity;
 			}
-		} else if(!Input.IsActionPressed("jump") && is_jumping) {
+		} else if(is_jumping && jump_timer < -0.2) {
 			is_jumping = false;
 		}
 		return velocity;
