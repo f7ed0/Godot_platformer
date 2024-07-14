@@ -14,6 +14,7 @@ public partial class Player : CharacterBody2D
 	public double jump_timer;
 	public double was_on_floor;
 	public AnimationPlayer animation;
+	public poutre ptre;
 	public bool is_sliding;
 	public double sliding_time;
 	public bool launch_me;
@@ -27,9 +28,14 @@ public partial class Player : CharacterBody2D
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
 		animation = GetNode<AnimationPlayer>("AnimationPlayer");
+		ptre = GetNode<poutre>("poutre");
 		default_zoom = cam.Zoom.X;
 		is_jumping = false;
 		this.sprite.Play();
+	}
+
+	public bool isCrouching() {
+		return Input.IsActionPressed("crouch") || ptre.colliding;
 	}
 
 	public override void _Process(double delta) {
@@ -50,16 +56,25 @@ public partial class Player : CharacterBody2D
 				sliding_time = 0.5f;
 			}
 			if (!is_sliding){
-				if(Mathf.Abs(direction) > 0.01) {
-					if (direction < 0) {
-						this.animation.Play("walking");
-						this.sprite.FlipH = true;
+				if (Mathf.Abs(direction) > 0.01) {
+					if (isCrouching()) {
+						this.animation.Play("crouch_walk");
 					} else {
 						this.animation.Play("walking");
+					}
+					if (direction < 0) {
+						this.sprite.FlipH = true;
+						this.sprite.Position = new Vector2(-8, this.sprite.Position.Y);
+					} else {
 						this.sprite.FlipH = false;
+						this.sprite.Position = new Vector2(2, this.sprite.Position.Y);
 					}
 				} else {
-					this.animation.Play("idle");
+					if (isCrouching()) {
+						this.animation.Play("crouch");
+					} else {
+						this.animation.Play("idle");
+					}
 				}
 			} else if((!Input.IsActionPressed("slide") && sliding_time <= 0) || Mathf.Abs(Velocity.X) < Speed / 3f) {
 				is_sliding = false;
@@ -67,8 +82,8 @@ public partial class Player : CharacterBody2D
 		} 
 	}
 
-	public override void _PhysicsProcess(double delta)
-	{
+	public override void _PhysicsProcess(double delta) {
+		GD.Print(IsOnFloor());
 		Rect2 view = GetViewportRect();
 
 		//float new_aspect_ratio = default_zoom*(view.Size.Y/720);
@@ -132,6 +147,7 @@ public partial class Player : CharacterBody2D
 			was_on_floor = 0;
 			bonus_jump_count = 1;
 		}
+		if(isCrouching()) return velocity;
 		if (Input.IsActionJustPressed("jump") && (IsOnFloor() || was_on_floor < 0.1)) {
 			if(is_sliding) {
 				velocity.Y = - JumpVelocity;
