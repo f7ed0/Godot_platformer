@@ -3,7 +3,7 @@ using System;
 
 public partial class Player : CharacterBody2D
 {
-	public const float Speed = 200.0f;
+	public const float Speed = 175.0f;
 	public const float JumpVelocity = 400.0f;
 
 	public float direction;
@@ -83,7 +83,6 @@ public partial class Player : CharacterBody2D
 	}
 
 	public override void _PhysicsProcess(double delta) {
-		GD.Print(IsOnFloor());
 		Rect2 view = GetViewportRect();
 
 		//float new_aspect_ratio = default_zoom*(view.Size.Y/720);
@@ -108,9 +107,16 @@ public partial class Player : CharacterBody2D
 		if(is_sliding) {
 			velocity.X = Mathf.MoveToward(velocity.X, 0, Speed*0.9f*((float) delta));
 		} else {
-			float real_speed = !IsOnFloor() ? Speed*0.1f : Speed;
+			float real_speed = Speed;
+			float speed_cap = Speed;
+			if (!IsOnFloor()) {
+				real_speed = Speed*0.1f;
+			}
+			if (isCrouching()) {
+				speed_cap = Speed*0.7f;
+			}
 			if (direction != 0) {
-				velocity.X =  Mathf.MoveToward(velocity.X, this.direction * Speed, real_speed*(float) delta*60f);
+				velocity.X =  Mathf.MoveToward(velocity.X, this.direction * speed_cap, real_speed*(float) delta*60f);
 			} else {
 				velocity.X = Mathf.MoveToward(velocity.X, 0, real_speed*(float) delta*60f);
 			}
@@ -145,13 +151,13 @@ public partial class Player : CharacterBody2D
 			was_on_floor += delta;
 		} else {
 			was_on_floor = 0;
-			bonus_jump_count = 1;
+			bonus_jump_count = 0;
 		}
 		if(isCrouching()) return velocity;
 		if (Input.IsActionJustPressed("jump") && (IsOnFloor() || was_on_floor < 0.1)) {
 			if(is_sliding) {
-				velocity.Y = - JumpVelocity;
-				velocity.X = (this.sprite.FlipH ? -1 : 1)*Speed*3f;
+				velocity.Y = -0.8f*JumpVelocity;
+				velocity.X = (this.sprite.FlipH ? -1 : 1)*Speed*3.75f;
 				this.jump_timer = 0;
 			} else {
 				velocity.Y = -JumpVelocity;
