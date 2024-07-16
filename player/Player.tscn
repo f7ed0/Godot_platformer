@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dr5kxssl071ba"]
+[gd_scene load_steps=21 format=3 uid="uid://dr5kxssl071ba"]
 
 [ext_resource type="Script" path="res://player/Player.cs" id="1_4wwkc"]
 [ext_resource type="SpriteFrames" uid="uid://vdxng17jev72" path="res://player/player_1.tres" id="1_nhrqf"]
@@ -7,6 +7,7 @@
 [ext_resource type="Shape2D" uid="uid://nvfnwoatpljc" path="res://player/hitboxes/start_slide_hitbox.tres" id="4_o33ro"]
 [ext_resource type="Shape2D" uid="uid://dspt75nfsa7ky" path="res://player/hitboxes/slide_hitbox.tres" id="5_3jp8f"]
 [ext_resource type="Script" path="res://player/poutre.cs" id="7_huw4r"]
+[ext_resource type="Shape2D" uid="uid://k2mfcdgmvkkl" path="res://player/hitboxes/wallgrab.tres" id="8_rbvo3"]
 
 [sub_resource type="Animation" id="Animation_671fn"]
 resource_name = "crouch"
@@ -201,7 +202,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1e-05),
 "update": 0,
-"values": [Vector2(-3, -2)]
+"values": [Vector2(-3, -1.9)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -373,6 +374,9 @@ tracks/3/keys = {
 "values": [Vector2(5, 5)]
 }
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bop0b"]
+size = Vector2(15, 28.2)
+
 [sub_resource type="Animation" id="Animation_ijgip"]
 resource_name = "walking"
 loop_mode = 1
@@ -398,6 +402,58 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1.07177e-05),
 "update": 1,
+"values": [SubResource("RectangleShape2D_bop0b")]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CollisionShape2D:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1e-05),
+"update": 0,
+"values": [Vector2(-3, -1.9)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("CollisionShape2D:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1e-05),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_qd6sc"]
+resource_name = "wall_hang"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSprite:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1e-05),
+"update": 0,
+"values": [&"grab_wall"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape2D:shape")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1e-05),
+"update": 1,
 "values": [ExtResource("2_ij1ph")]
 }
 tracks/2/type = "value"
@@ -410,7 +466,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1e-05),
 "update": 0,
-"values": [Vector2(-3, -2)]
+"values": [Vector2(-3, -1.9)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -434,25 +490,25 @@ _data = {
 "jump": SubResource("Animation_iofpx"),
 "slide": SubResource("Animation_ddy0t"),
 "slide_start": SubResource("Animation_hpueq"),
-"walking": SubResource("Animation_ijgip")
+"walking": SubResource("Animation_ijgip"),
+"wall_hang": SubResource("Animation_qd6sc")
 }
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_2rcyq"]
-radius = 7.07107
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qk748"]
+size = Vector2(15, 15)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_4wwkc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-2, 5.3)
+position = Vector2(-3, -1.9)
 scale = Vector2(1, 1.3)
-shape = ExtResource("2_y1sle")
+shape = ExtResource("2_ij1ph")
 
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(2, -23)
 sprite_frames = ExtResource("1_nhrqf")
-animation = &"crouch_walk"
-frame_progress = 0.850611
+animation = &"grab_wall"
 
 [node name="PlayerCamera" type="Camera2D" parent="."]
 position = Vector2(-1, 0)
@@ -469,6 +525,24 @@ collision_layer = 0
 script = ExtResource("7_huw4r")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="poutre"]
-position = Vector2(-3, -14)
-shape = SubResource("CircleShape2D_2rcyq")
+position = Vector2(-3, -13)
+shape = SubResource("RectangleShape2D_qk748")
 debug_color = Color(0.713429, 0.482696, 0.0873926, 0.42)
+
+[node name="wallgrab_hitbox_r" type="StaticBody2D" parent="."]
+collision_layer = 0
+script = ExtResource("7_huw4r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="wallgrab_hitbox_r"]
+position = Vector2(8, -15.5)
+shape = ExtResource("8_rbvo3")
+debug_color = Color(0.984459, 0, 0.34336, 0.42)
+
+[node name="wallgrab_hitbox_l" type="StaticBody2D" parent="."]
+collision_layer = 0
+script = ExtResource("7_huw4r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="wallgrab_hitbox_l"]
+position = Vector2(-14, -15.5)
+shape = ExtResource("8_rbvo3")
+debug_color = Color(0.984459, 0, 0.34336, 0.42)

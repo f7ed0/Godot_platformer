@@ -15,6 +15,7 @@ public partial class Player : CharacterBody2D
 	public double was_on_floor;
 	public AnimationPlayer animation;
 	public poutre ptre;
+	public poutre[] wallgrab;
 	public bool is_sliding;
 	public double sliding_time;
 	public bool launch_me;
@@ -28,6 +29,9 @@ public partial class Player : CharacterBody2D
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
 		animation = GetNode<AnimationPlayer>("AnimationPlayer");
+		wallgrab =  new poutre[2];
+		wallgrab[0] = GetNode<poutre>("wallgrab_hitbox_l");
+		wallgrab[1] = GetNode<poutre>("wallgrab_hitbox_r");
 		ptre = GetNode<poutre>("poutre");
 		default_zoom = cam.Zoom.X;
 		is_jumping = false;
@@ -38,9 +42,36 @@ public partial class Player : CharacterBody2D
 		return Input.IsActionPressed("crouch") || ptre.colliding;
 	}
 
+	public bool isWallHangingLeft() {
+		return wallgrab[0].colliding && !IsOnFloor() && Velocity.Y >= 0;
+	}
+
+	public bool isWallHangingRight() {
+		return wallgrab[1].colliding && !IsOnFloor() && Velocity.Y >= 0;
+	}
+
+	public bool isWallHanging() => isWallHangingLeft() || isWallHangingRight();
+
+	public void correctSpritePosition() {
+		if (this.is_sliding) {
+			this.sprite.Position = this.sprite.FlipH ? new Vector2(4, this.sprite.Position.Y) : new Vector2(2, this.sprite.Position.Y);
+		} else if (this.isWallHanging()) {
+			this.sprite.Position = this.sprite.FlipH ? new Vector2(4, this.sprite.Position.Y) : new Vector2(-2, this.sprite.Position.Y);
+		} else {
+			this.sprite.Position = this.sprite.FlipH ? new Vector2(-8, this.sprite.Position.Y) : new Vector2(2, this.sprite.Position.Y);
+		}
+	}
+
 	public override void _Process(double delta) {
 		sliding_time -= delta;
-		if (!IsOnFloor()) {
+		if (isWallHanging()) {
+			this.animation.Play("wall_hang");
+			if (isWallHangingRight()) {
+				this.sprite.FlipH = false;
+			} else {
+				this.sprite.FlipH = true;
+			}
+		} else if (!IsOnFloor()) {
 			if( is_jumping ){
 				this.animation.Play("jump");
 			}else {
@@ -48,12 +79,14 @@ public partial class Player : CharacterBody2D
 			}
 			is_sliding = false;
 		} else {
-			if (Input.IsActionJustPressed("slide") && !is_sliding) {
+			if (Input.IsActionJustPressed("slide") && !is_sliding && Mathf.Abs(Velocity.X) > Speed*0.5f ) {
+				
 				this.animation.Play("slide_start");
 				this.animation.Queue("slide");
 				launch_me = true;
 				is_sliding = true;
-				sliding_time = 0.5f;
+				sliding_time = 0.35f;
+				
 			}
 			if (!is_sliding){
 				if (Mathf.Abs(direction) > 0.01) {
@@ -64,10 +97,8 @@ public partial class Player : CharacterBody2D
 					}
 					if (direction < 0) {
 						this.sprite.FlipH = true;
-						this.sprite.Position = new Vector2(-8, this.sprite.Position.Y);
 					} else {
 						this.sprite.FlipH = false;
-						this.sprite.Position = new Vector2(2, this.sprite.Position.Y);
 					}
 				} else {
 					if (isCrouching()) {
@@ -76,10 +107,11 @@ public partial class Player : CharacterBody2D
 						this.animation.Play("idle");
 					}
 				}
-			} else if((!Input.IsActionPressed("slide") && sliding_time <= 0) || Mathf.Abs(Velocity.X) < Speed / 3f) {
+			} else if((!Input.IsActionPressed("slide") && sliding_time <= 0) || Mathf.Abs(Velocity.X) < Speed*0.2f) {
 				is_sliding = false;
 			} 
 		} 
+		correctSpritePosition();
 	}
 
 	public override void _PhysicsProcess(double delta) {
@@ -146,7 +178,10 @@ public partial class Player : CharacterBody2D
 
 	public Vector2 HandleJump(double delta, Vector2 velocity) {
 		jump_timer -= delta;
-		if (!IsOnFloor()) {
+		if (isWallHanging()) {
+			velocity.Y = 0;
+			was_on_floor += delta;
+		} else if (!IsOnFloor()) {
 			velocity.Y += gravity * (float)delta;
 			was_on_floor += delta;
 		} else {

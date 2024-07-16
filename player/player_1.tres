@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=47 format=3 uid="uid://vdxng17jev72"]
+[gd_resource type="SpriteFrames" load_steps=49 format=3 uid="uid://vdxng17jev72"]
 
 [ext_resource type="Texture2D" uid="uid://bdgkajtpexjrq" path="res://player/Sprites/_Crouch.png" id="1_1kt81"]
 [ext_resource type="Texture2D" uid="uid://cm1r132tfr3k1" path="res://player/Sprites/_JumpFallInbetween.png" id="1_fc2my"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://bdodvrmuuh2b" path="res://player/Sprites/_Jump.png" id="2_epo88"]
 [ext_resource type="Texture2D" uid="uid://b738byfh8mlf5" path="res://player/Sprites/_CrouchWalk.png" id="2_fqpt6"]
 [ext_resource type="Texture2D" uid="uid://bu4mmdx2gflm1" path="res://player/Sprites/_SlideTransitionStart.png" id="4_pgalv"]
+[ext_resource type="Texture2D" uid="uid://dbkk4gxhqr3pb" path="res://player/Sprites/_WallHang.png" id="4_u0dwt"]
 [ext_resource type="Texture2D" uid="uid://k210h3jx1rpq" path="res://player/Sprites/_SlideTransitionEnd.png" id="5_blvx7"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_guq1j"]
@@ -49,6 +50,10 @@ region = Rect2(840, 0, 120, 80)
 [sub_resource type="AtlasTexture" id="AtlasTexture_s1bb8"]
 atlas = ExtResource("1_fc2my")
 region = Rect2(120, 0, 120, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_akywm"]
+atlas = ExtResource("4_u0dwt")
+region = Rect2(0, 0, 120, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ga8d3"]
 atlas = ExtResource("1_pbv4f")
@@ -204,6 +209,14 @@ animations = [{
 "loop": true,
 "name": &"drop",
 "speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_akywm")
+}],
+"loop": true,
+"name": &"grab_wall",
+"speed": 5.0
 }, {
 "frames": [{
 "duration": 1.0,
