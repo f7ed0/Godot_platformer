@@ -10,7 +10,7 @@ public partial class Player : CharacterBody2D
 {
 	public const float Speed = 175.0f;
 	public const float JumpVelocity = 350.0f;
-	public PlayerState playerState;
+	public PlayerState playerState = PlayerState.Idle;
 	public float direction;
 	public float default_zoom;
 	public Camera2D cam;
@@ -28,7 +28,6 @@ public partial class Player : CharacterBody2D
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
-
 	
 	public Vector2 HandleGroundedPhysics(Vector2 velocity, double delta) {
 		velocity.Y += ground_gravity * (float) delta;
@@ -39,11 +38,29 @@ public partial class Player : CharacterBody2D
 		velocity.Y += (Input.IsActionPressed("jump") ? 0.9f : 1f ) * jump_gravity * (float) delta;
 		return velocity;
 	}
+
+	public float getDirection() {
+		return Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left");;
+	}
+
+	public void updateWasOnFloor(double delta) {
+		if (IsOnFloor()) {
+			was_on_floor = 0;
+		} else {
+			was_on_floor += delta;
+		}
+	}
+
 	// ------------------ FALLING ------------------------------
 	public Vector2 HandleFalling_Physics(Vector2 velocity, double delta) {
 		if (IsOnFloor()) {
 			playerState = PlayerState.Idle;
 			velocity = HandleIdling_Pysics(velocity, delta);
+			return velocity;
+		}
+		if (was_on_floor < 0.2 && Input.IsActionJustPressed("jump")) {
+			playerState = PlayerState.Jumping;
+			velocity.Y = -JumpVelocity;
 			return velocity;
 		}
 		velocity = HandleAerialPhysics(velocity, delta);
@@ -68,6 +85,8 @@ public partial class Player : CharacterBody2D
 			velocity = HandleIdling_Pysics(velocity, delta);
 			return velocity;
 		}
+		// 
+		velocity.X = Mathf.MoveToward(velocity.X, getDirection()*Speed, Speed*0.1f*(float) delta*30f);
 		velocity = HandleAerialPhysics(velocity, delta);
 		return velocity;
 	}
@@ -80,8 +99,9 @@ public partial class Player : CharacterBody2D
 	// -------------------- IDLE --------------------------------
 	public Vector2 HandleIdling_Pysics(Vector2 velocity, double delta) {
 		// Player use left or right
-		if ( Input.IsActionJustPressed("move_left") || Input.IsActionJustPressed("move_right") ) {
+		if ( getDirection() != 0 ) {
 			playerState = PlayerState.Walking;
+			return HandleWalking_Pysics(velocity, delta);
 		}
 		// Player use jump
 		else if( Input.IsActionJustPressed("jump")) {
@@ -97,14 +117,47 @@ public partial class Player : CharacterBody2D
 		else if ( !IsOnFloor() ) {
 			// TODO
 		}
-		velocity = HandleGroundedPhysics(velocity, delta);
-		return velocity;
+		velocity.X =  Mathf.MoveToward(velocity.X, 0, Speed*(float) delta*30f);
+		return HandleGroundedPhysics(velocity, delta);
 	}
 
 	public void HandleIdling() {
 		animation.Play("idle");
 	}
 	// ------------------------------------------------------------------------
+
+	// -------------------- WALKING -------------------------------------------
+	public Vector2 HandleWalking_Pysics(Vector2 velocity, double delta) {
+		float direction = getDirection();
+		if (direction == 0) {
+			playerState = PlayerState.Idle;
+			return HandleIdling_Pysics(velocity,delta);
+		}
+		if ( Input.IsActionJustPressed("jump") ) {
+			playerState = PlayerState.Jumping;
+			velocity.Y = -JumpVelocity;
+			velocity.X = Mathf.MoveToward(velocity.X, direction*Speed, Speed*(float) delta*30f);
+			return velocity;
+		}
+		if ( !IsOnFloor() ) {
+			playerState = PlayerState.Falling;
+			return HandleFalling_Physics(velocity,delta);
+		}
+		velocity.X = Mathf.MoveToward(velocity.X, direction*Speed, Speed*(float) delta*30f);
+		return velocity;
+	}
+
+	public void HandleWalking() {
+		if (Math.Abs(Velocity.X) > 0) {
+			animation.Play("walking");
+		} else {
+			animation.Play("idle");
+		}
+		
+		sprite.FlipH = getDirection() < 0;
+	}
+	// ------------------------------------------------------------------------
+
 	public override void _Ready() {
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
@@ -158,6 +211,9 @@ public partial class Player : CharacterBody2D
 				break;
 			case PlayerState.Falling :
 				HandleFalling();
+				break;
+			case PlayerState.Walking :
+				HandleWalking();
 				break;
 		}
 		
@@ -223,6 +279,7 @@ public partial class Player : CharacterBody2D
 	public override void _PhysicsProcess(double delta) {
 		Rect2 view = GetViewportRect();
 
+		updateWasOnFloor(delta);
 		//float new_aspect_ratio = default_zoom*(view.Size.Y/720);
 
 		//cam.Zoom = new Vector2(new_aspect_ratio,new_aspect_ratio);
@@ -240,6 +297,9 @@ public partial class Player : CharacterBody2D
 				break;
 			case PlayerState.Falling :
 				velocity = HandleFalling_Physics(velocity, delta);
+				break;
+			case PlayerState.Walking :
+				velocity = HandleWalking_Pysics(velocity, delta);
 				break;
 		}
 
