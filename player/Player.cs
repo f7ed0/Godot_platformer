@@ -139,7 +139,7 @@ public partial class Player : CharacterBody2D
 
 		if(is_sliding) {
 			velocity.X = Mathf.MoveToward(velocity.X, 0, Speed*0.9f*((float) delta));
-		} else {
+		} else if (!isWallHanging()) {
 			float real_speed = Speed;
 			float speed_cap = Speed;
 			if (!IsOnFloor()) {
@@ -202,8 +202,12 @@ public partial class Player : CharacterBody2D
 			bonus_jump_count --;
 		} else if (Input.IsActionJustPressed("jump") && isWallHanging()) {
 			velocity.Y = -JumpVelocity;
-			velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*2;
-			sprite.FlipH = !sprite.FlipH;
+			if ((direction > 0 && isWallHangingRight()) || (direction < 0 && isWallHangingLeft())) {
+				velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*1f;
+			} else {
+				velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*2f;
+				sprite.FlipH = !sprite.FlipH;
+			}
 		}
 		return velocity;
 	}
