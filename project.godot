@@ -62,7 +62,8 @@ crouch={
 
 2d_physics/layer_1="World"
 2d_physics/layer_2="player"
+2d_physics/layer_9="world_boundary"
 
 [physics]
 
-2d/default_gravity=1150.0
+2d/default_gravity=4600.0

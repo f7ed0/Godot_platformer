@@ -18,18 +18,20 @@ public partial class Player : CharacterBody2D
 	public double sliding_time;
 	public bool launch_me;
 	public int bonus_jump_count;
+	public CanvasLayer hud;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
-	public float gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
+	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
+	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
 
-	public override void _Ready()
-	{
+	public override void _Ready() {
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
 		animation = GetNode<AnimationPlayer>("AnimationPlayer");
 		wallgrab =  new poutre[2];
 		wallgrab[0] = GetNode<poutre>("wallgrab_hitbox_l");
 		wallgrab[1] = GetNode<poutre>("wallgrab_hitbox_r");
+		//hud = GetNode<CanvasLayer>("/root/autoload/hud");
 		ptre = GetNode<poutre>("poutre");
 		default_zoom = cam.Zoom.X;
 		sprite.Play();
@@ -64,6 +66,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public override void _Process(double delta) {
+		
 		sliding_time -= delta;
 		if (isWallHanging()) {
 			animation.Play("wall_hang");
@@ -166,11 +169,11 @@ public partial class Player : CharacterBody2D
 		Vector2 velocity_normalized = velocity.Normalized();
 
 		float x = velocity_normalized.X*(250/default_zoom);
-		float y = Mathf.Min(-velocity_normalized.Y*(350/default_zoom), -100-Position.Y);
+		float y = Mathf.Min(0, -100-Position.Y);
 
 		
 		float cam_pos_x = Mathf.MoveToward(cam.Position.X, x, Mathf.Sqrt(Math.Abs(cam.Position.X-x))*(float) delta*5);
-		float cam_pos_y = 0; // Mathf.MoveToward(cam.Position.Y, y, Mathf.Sqrt(Math.Abs(cam.Position.Y-y))*(float) delta*7);
+		float cam_pos_y = y;
 		
 		cam.Position = new Vector2(cam_pos_x,cam_pos_y);
 
@@ -182,10 +185,10 @@ public partial class Player : CharacterBody2D
 			velocity.Y = 0;
 			was_on_floor += delta;
 		} else if (!IsOnFloor()) {
-			velocity.Y += ( Input.IsActionPressed("jump") ? gravity*0.8f : gravity) * (float)delta;
+			velocity.Y += ( Input.IsActionPressed("jump") ? jump_gravity*0.9f : jump_gravity) * (float)delta;
 			was_on_floor += delta;
 		} else {
-			velocity.Y += gravity * (float)delta;
+			velocity.Y += ground_gravity * (float)delta;
 			was_on_floor = 0;
 			bonus_jump_count = 0;
 		}
@@ -201,14 +204,26 @@ public partial class Player : CharacterBody2D
 			velocity.Y = -0.7f*JumpVelocity;
 			bonus_jump_count --;
 		} else if (Input.IsActionJustPressed("jump") && isWallHanging()) {
-			velocity.Y = -JumpVelocity;
+			
 			if ((direction > 0 && isWallHangingRight()) || (direction < 0 && isWallHangingLeft())) {
-				velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*1f;
+				velocity.Y = -1.2f*JumpVelocity;
+				velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*0.75f;
 			} else {
+				velocity.Y = -JumpVelocity;
 				velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*2f;
 				sprite.FlipH = !sprite.FlipH;
 			}
 		}
 		return velocity;
 	}
+
+	private void _on_hurtbox_area_entered(Area2D area)
+	{
+		if (area.GetCollisionLayerValue(9)) {
+			Position = new Vector2(0,-100);
+		}
+	}
 }
+
+
+
