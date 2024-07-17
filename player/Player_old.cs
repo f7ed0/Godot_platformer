@@ -1,16 +1,11 @@
 using Godot;
 using System;
 
-public enum PlayerState
-{
-	Idle,Walking,Jumping,Crouched,CrouchWalk,Sliding,Falling,WallHanging
-}
-
-public partial class Player : CharacterBody2D
+public partial class Player_old : CharacterBody2D
 {
 	public const float Speed = 175.0f;
 	public const float JumpVelocity = 350.0f;
-	public PlayerState playerState;
+
 	public float direction;
 	public float default_zoom;
 	public Camera2D cam;
@@ -29,82 +24,6 @@ public partial class Player : CharacterBody2D
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
 
-	
-	public Vector2 HandleGroundedPhysics(Vector2 velocity, double delta) {
-		velocity.Y += ground_gravity * (float) delta;
-		return velocity;
-	}
-
-	public Vector2 HandleAerialPhysics(Vector2 velocity,double delta) {
-		velocity.Y += (Input.IsActionPressed("jump") ? 0.9f : 1f ) * jump_gravity * (float) delta;
-		return velocity;
-	}
-	// ------------------ FALLING ------------------------------
-	public Vector2 HandleFalling_Physics(Vector2 velocity, double delta) {
-		if (IsOnFloor()) {
-			playerState = PlayerState.Idle;
-			velocity = HandleIdling_Pysics(velocity, delta);
-			return velocity;
-		}
-		velocity = HandleAerialPhysics(velocity, delta);
-		return velocity;
-	}
-
-	public void HandleFalling() {
-		animation.Play("drop");
-	}
-	// ---------------------------------------------------------
-
-	// ------------------ JUMPING ------------------------------
-	public Vector2 HandleJumping_Physics(Vector2 velocity, double delta) {
-		// Player Falling
-		if (velocity.Y > 0) {
-			playerState = PlayerState.Falling;
-			velocity = HandleFalling_Physics(velocity, delta);
-			return velocity;
-		}
-		if (IsOnFloor()) {
-			playerState = PlayerState.Idle;
-			velocity = HandleIdling_Pysics(velocity, delta);
-			return velocity;
-		}
-		velocity = HandleAerialPhysics(velocity, delta);
-		return velocity;
-	}
-
-	public void HandleJumping() {
-		animation.Play("jump");
-	}
-	// ----------------------------------------------------------
-
-	// -------------------- IDLE --------------------------------
-	public Vector2 HandleIdling_Pysics(Vector2 velocity, double delta) {
-		// Player use left or right
-		if ( Input.IsActionJustPressed("move_left") || Input.IsActionJustPressed("move_right") ) {
-			playerState = PlayerState.Walking;
-		}
-		// Player use jump
-		else if( Input.IsActionJustPressed("jump")) {
-			playerState = PlayerState.Jumping;
-			velocity.Y = -JumpVelocity;
-			return velocity;
-		}
-		// Player crouch
-		else if ( Input.IsActionJustPressed("crouch") ) {
-			// TODO
-		}
-		// Player fall
-		else if ( !IsOnFloor() ) {
-			// TODO
-		}
-		velocity = HandleGroundedPhysics(velocity, delta);
-		return velocity;
-	}
-
-	public void HandleIdling() {
-		animation.Play("idle");
-	}
-	// ------------------------------------------------------------------------
 	public override void _Ready() {
 		cam = GetNode<Camera2D>("PlayerCamera");
 		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
@@ -147,21 +66,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public override void _Process(double delta) {
-
-
-		switch (playerState) {
-			case PlayerState.Idle :
-				HandleIdling();
-				break;
-			case PlayerState.Jumping :
-				HandleJumping();
-				break;
-			case PlayerState.Falling :
-				HandleFalling();
-				break;
-		}
 		
-		return;
 		sliding_time -= delta;
 		if (isWallHanging()) {
 			animation.Play("wall_hang");
@@ -229,25 +134,6 @@ public partial class Player : CharacterBody2D
 
 		Vector2 velocity = Velocity;
 
-		//velocity += GetGravityAction(delta);
-
-		switch(playerState) {
-			case PlayerState.Idle :
-				velocity = HandleIdling_Pysics(velocity, delta);
-				break;
-			case PlayerState.Jumping :
-				velocity = HandleJumping_Physics(velocity, delta);
-				break;
-			case PlayerState.Falling :
-				velocity = HandleFalling_Physics(velocity, delta);
-				break;
-		}
-
-		Velocity = velocity;
-
-		MoveAndSlide();
-
-		return;
 		// Add the gravity.
 		// Handle Jump.
 		velocity = HandleJump(delta,Velocity);
@@ -299,22 +185,6 @@ public partial class Player : CharacterBody2D
 		cam.Position = new Vector2(cam_pos_x,cam_pos_y);
 
 		// ----------------------------------------------
-	}
-
-	public Vector2 GetGravityAction(double delta) {
-		Vector2 velocity =  new Vector2();
-		if (isWallHanging()) {
-			velocity.Y = 0;
-			was_on_floor += delta;
-		} else if (!IsOnFloor()) {
-			velocity.Y += ( Input.IsActionPressed("jump") ? jump_gravity*0.9f : jump_gravity) * (float)delta;
-			was_on_floor += delta;
-		} else {
-			velocity.Y += ground_gravity * (float)delta;
-			was_on_floor = 0;
-			bonus_jump_count = 0;
-		}
-		return velocity;
 	}
 
 	public Vector2 HandleJump(double delta, Vector2 velocity) {
