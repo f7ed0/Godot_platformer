@@ -3,15 +3,17 @@ using System;
 
 public enum PlayerState
 {
-	Idle,Walking,Jumping,Crouched,CrouchWalk,Sliding,Falling,WallHanging
+	Idle,Walking,Jumping,Crouched,CrouchWalk,Sliding,Falling,WallHanging,NULL
 }
 
 public partial class Player : CharacterBody2D
 {
 	public const float Speed = 175.0f;
 	public const float JumpVelocity = 350.0f;
+
 	public PlayerState playerState = PlayerState.Idle;
-	public float direction;
+	public PlayerState oldPlayerState = PlayerState.NULL;
+
 	public float default_zoom;
 	public Camera2D cam;
 	public AnimatedSprite2D sprite;
@@ -19,11 +21,7 @@ public partial class Player : CharacterBody2D
 	public AnimationPlayer animation;
 	public poutre ptre;
 	public poutre[] wallgrab;
-	public bool is_sliding;
 	public double sliding_time;
-	public bool launch_me;
-	public int bonus_jump_count;
-	public CanvasLayer hud;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -62,6 +60,10 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.Jumping;
 			velocity.Y = -JumpVelocity;
 			return velocity;
+		}
+		if ((CanWallHangLeft() && Input.IsActionPressed("move_left")) || (CanWallHangRight() && Input.IsActionPressed("move_right"))) {
+			playerState = PlayerState.WallHanging;
+			return HandleWallHanging_Pysics(velocity,delta);
 		}
 		velocity = HandleAerialPhysics(velocity, delta);
 		return velocity;
@@ -110,12 +112,14 @@ public partial class Player : CharacterBody2D
 			return velocity;
 		}
 		// Player crouch
-		else if ( Input.IsActionJustPressed("crouch") ) {
-			// TODO
+		else if ( Input.IsActionJustPressed("crouch") || ptre.colliding) {
+			playerState = PlayerState.Crouched;
+			return HandleCrouching_Pysics(velocity,delta);
 		}
 		// Player fall
 		else if ( !IsOnFloor() ) {
-			// TODO
+			playerState = PlayerState.Falling;
+			return HandleFalling_Physics(velocity,delta);
 		}
 		velocity.X =  Mathf.MoveToward(velocity.X, 0, Speed*(float) delta*30f);
 		return HandleGroundedPhysics(velocity, delta);
@@ -126,8 +130,88 @@ public partial class Player : CharacterBody2D
 	}
 	// ------------------------------------------------------------------------
 
+	// -------------------- SLIDING -------------------------------------------
+	public Vector2 HandleSliding_Pysics(Vector2 velocity, double delta) {
+		sliding_time += delta;
+		if ( (!Input.IsActionPressed("slide") && sliding_time > 0.4f)|| Mathf.Abs(velocity.X) < 0.3*Speed ) {
+			playerState = PlayerState.Idle;
+			return HandleIdling_Pysics(velocity, delta);
+		}
+		if ( Input.IsActionJustPressed("jump") ) {
+			playerState = PlayerState.Jumping;
+			velocity.Y = -0.6f*JumpVelocity;
+			velocity.X = (sprite.FlipH ? -1 : 1)*Speed*3f;
+			return velocity;
+		}
+		if (was_on_floor > 0.1f) {
+			playerState = PlayerState.Falling;
+			return HandleFalling_Physics(velocity,delta);
+		} 
+		velocity.X = Mathf.MoveToward(velocity.X, 0, Speed*0.9f*((float) delta));
+		if ( !IsOnFloor() ) {
+			return HandleAerialPhysics(velocity,delta);
+		}
+		return HandleGroundedPhysics(velocity,delta);
+	}
+
+	public void HandleSliding() {
+		animation.Play("slide_start");
+		animation.Queue("slide");
+	}
+	// ------------------------------------------------------------------------
+
+	// -------------------- CROUCHING -----------------------------------------
+	public Vector2 HandleCrouching_Pysics(Vector2 velocity, double delta) {
+		if (!Input.IsActionPressed("crouch") && !ptre.colliding) {
+			playerState = PlayerState.Idle;
+			return HandleIdling_Pysics(velocity,delta);
+		}
+		if (getDirection() != 0) {
+			playerState = PlayerState.CrouchWalk;
+			return HandleCrouchWalk_Pysics(velocity,delta);
+		}
+		velocity.X =  Mathf.MoveToward(velocity.X, 0, Speed*(float) delta*30f);
+		return HandleGroundedPhysics(velocity,delta);
+	}
+
+	public void HandleCrouching() {
+		animation.Play("crouch");
+	}
+	// ------------------------------------------------------------------------
+
+	// -------------------- CROUCHWALK ----------------------------------------
+	public Vector2 HandleCrouchWalk_Pysics(Vector2 velocity, double delta) {
+		float direction = getDirection();
+		if (!Input.IsActionPressed("crouch") && !ptre.colliding) {
+			playerState = PlayerState.Idle;
+			return HandleIdling_Pysics(velocity,delta);
+		}
+		if (direction == 0) {
+			playerState = PlayerState.Crouched;
+			HandleCrouching_Pysics(velocity, delta);
+		}
+		velocity.X = Mathf.MoveToward(velocity.X, direction*Speed*0.7f, Speed*0.7f*(float) delta*30f);
+		return HandleGroundedPhysics(velocity,delta);
+	}
+
+	public void HandleCrouchWalk() {
+		if (oldPlayerState == PlayerState.CrouchWalk) {
+			oldPlayerState = PlayerState.NULL;
+		}
+		if (Math.Abs(Velocity.X) > 0) {
+			animation.Play("crouch_walk");
+		} else {
+			animation.Play("crouch");
+		}
+		sprite.FlipH = getDirection() < 0;
+	}
+	// ------------------------------------------------------------------------
+
 	// -------------------- WALKING -------------------------------------------
 	public Vector2 HandleWalking_Pysics(Vector2 velocity, double delta) {
+		if (oldPlayerState == PlayerState.Walking) {
+			oldPlayerState = PlayerState.NULL;
+		}
 		float direction = getDirection();
 		if (direction == 0) {
 			playerState = PlayerState.Idle;
@@ -143,18 +227,59 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.Falling;
 			return HandleFalling_Physics(velocity,delta);
 		}
+		if ( Input.IsActionJustPressed("slide") && Math.Abs(velocity.X) > Speed*0.4f ) {
+			playerState = PlayerState.Sliding;
+			sliding_time = 0;
+			velocity.X += (sprite.FlipH ? -1 : 1)*Speed*0.5f;
+			return velocity;
+		}
+		if ( Input.IsActionJustPressed("crouch") || ptre.colliding) {
+			playerState = PlayerState.CrouchWalk;
+			return HandleCrouchWalk_Pysics(velocity,delta);
+		}
 		velocity.X = Mathf.MoveToward(velocity.X, direction*Speed, Speed*(float) delta*30f);
-		return velocity;
+		return HandleGroundedPhysics(velocity,delta);
 	}
 
 	public void HandleWalking() {
+		if (oldPlayerState == PlayerState.Walking) {
+			oldPlayerState = PlayerState.NULL;
+		}
 		if (Math.Abs(Velocity.X) > 0) {
 			animation.Play("walking");
 		} else {
 			animation.Play("idle");
 		}
-		
 		sprite.FlipH = getDirection() < 0;
+	}
+	// ------------------------------------------------------------------------
+
+	// --------------- WALLHANGING --------------------------------------------
+	public Vector2 HandleWallHanging_Pysics(Vector2 velocity, double delta) {
+		float direction = getDirection();
+		if (Input.IsActionJustPressed("jump")) {
+			playerState = PlayerState.Jumping;
+			if ((direction > 0 && CanWallHangRight()) || (direction < 0 && CanWallHangLeft())) {
+				velocity.Y = -1.4f*JumpVelocity;
+				velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*0.5f;
+			} else {
+				velocity.Y = -1.2f*JumpVelocity;
+				velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*1.8f;
+				sprite.FlipH = !sprite.FlipH;
+			}
+			return velocity;
+		}
+		if (Input.IsActionJustPressed("crouch")) {
+			playerState = PlayerState.Falling;
+			velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*0.5f;
+			return HandleFalling_Physics(velocity, delta);
+		}
+		return new Vector2();
+	}
+
+	public void HandleWallHanging() {
+		animation.Play("wall_hang");
+		sprite.FlipH = CanWallHangLeft();
 	}
 	// ------------------------------------------------------------------------
 
@@ -175,105 +300,74 @@ public partial class Player : CharacterBody2D
 		return Input.IsActionPressed("crouch") || ptre.colliding;
 	}
 
-	public bool isWallHangingLeft() {
-		return wallgrab[0].colliding && !IsOnFloor() && Velocity.Y >= 0;
+	public bool CanWallHangLeft() {
+		return wallgrab[0].colliding && !IsOnFloor();
 	}
 
-	public bool isWallHangingRight() {
-		return wallgrab[1].colliding && !IsOnFloor() && Velocity.Y >= 0;
+	public bool CanWallHangRight() {
+		return wallgrab[1].colliding && !IsOnFloor();
 	}
 
-	public bool isJumping() {
-		return !IsOnFloor() && Input.IsActionPressed("jump");
-	}
-
-	public bool isWallHanging() => isWallHangingLeft() || isWallHangingRight();
+	public bool CanWallHang() => CanWallHangLeft() || CanWallHangRight();
 
 	public void correctSpritePosition() {
-		if (is_sliding) {
+		if (playerState == PlayerState.Sliding) {
 			sprite.Position = sprite.FlipH ? new Vector2(4, sprite.Position.Y) : new Vector2(2, sprite.Position.Y);
-		} else if (isWallHanging()) {
+		} else if (playerState == PlayerState.WallHanging) {
 			sprite.Position = sprite.FlipH ? new Vector2(-4, sprite.Position.Y) : new Vector2(-2, sprite.Position.Y);
 		} else {
 			sprite.Position = sprite.FlipH ? new Vector2(-8, sprite.Position.Y) : new Vector2(2, sprite.Position.Y);
 		}
 	}
 
-	public override void _Process(double delta) {
+	public void HandleCamera(double delta) {
+		Vector2 velocity_normalized = Velocity.Normalized();
 
+		float x = velocity_normalized.X*(250/default_zoom);
+		float y = Mathf.Min(0, -100-Position.Y);
 
-		switch (playerState) {
-			case PlayerState.Idle :
-				HandleIdling();
-				break;
-			case PlayerState.Jumping :
-				HandleJumping();
-				break;
-			case PlayerState.Falling :
-				HandleFalling();
-				break;
-			case PlayerState.Walking :
-				HandleWalking();
-				break;
-		}
+		float cam_pos_x = Mathf.MoveToward(cam.Position.X, x, Mathf.Sqrt(Math.Abs(cam.Position.X-x))*(float) delta*5);
+		float cam_pos_y = y;
 		
-		return;
-		sliding_time -= delta;
-		if (isWallHanging()) {
-			animation.Play("wall_hang");
-			if (isWallHangingRight()) {
-				sprite.FlipH = false;
-			} else {
-				sprite.FlipH = true;
-			}
-		} else if (!IsOnFloor()) {
-			if( isJumping() ){
-				animation.Play("jump");
-			}else {
-				animation.Play("drop");
-			}
-			if (was_on_floor > 0.2) {
-				is_sliding = false;
-			}
-		} else {
-			if (Input.IsActionJustPressed("slide") && !is_sliding && Mathf.Abs(Velocity.X) > Speed*0.5f ) {
-				
-				animation.Play("slide_start");
-				animation.Queue("slide");
-				launch_me = true;
-				is_sliding = true;
-				sliding_time = 0.35f;
-				
-			}
-			if (!is_sliding){
-				if (Mathf.Abs(direction) > 0.01) {
-					if (isCrouching()) {
-						animation.Play("crouch_walk");
-					} else {
-						animation.Play("walking");
-					}
-					if (direction < 0) {
-						sprite.FlipH = true;
-					} else {
-						sprite.FlipH = false;
-					}
-				} else {
-					if (isCrouching()) {
-						animation.Play("crouch");
-					} else {
-						animation.Play("idle");
-					}
-				}
-			}
+		cam.Position = new Vector2(cam_pos_x,cam_pos_y);
+	}
 
-		} 
-		if((!Input.IsActionPressed("slide") && sliding_time <= 0) || Mathf.Abs(Velocity.X) < Speed*0.2f) {
-			is_sliding = false;
-		}  
-		if (isJumping()) {
-			is_sliding = false;
+	public override void _Process(double delta) {
+		if (oldPlayerState != playerState) {
+			switch (playerState) {
+				case PlayerState.Idle :
+					HandleIdling();
+					break;
+				case PlayerState.Jumping :
+					HandleJumping();
+					break;
+				case PlayerState.Falling :
+					HandleFalling();
+					break;
+				case PlayerState.Walking :
+					HandleWalking();
+					break;
+				case PlayerState.Sliding :
+					HandleSliding();
+					break;
+				case PlayerState.Crouched :
+					HandleCrouching();
+					break;
+				case PlayerState.CrouchWalk :
+					HandleCrouchWalk();
+					break;
+				case PlayerState.WallHanging:
+					HandleWallHanging();
+					break;
+			}
+			oldPlayerState = playerState;
 		}
+
 		correctSpritePosition();
+
+		HandleCamera(delta);
+
+		return;
 	}
 
 	public override void _PhysicsProcess(double delta) {
@@ -281,12 +375,9 @@ public partial class Player : CharacterBody2D
 
 		updateWasOnFloor(delta);
 		//float new_aspect_ratio = default_zoom*(view.Size.Y/720);
-
 		//cam.Zoom = new Vector2(new_aspect_ratio,new_aspect_ratio);
 
 		Vector2 velocity = Velocity;
-
-		//velocity += GetGravityAction(delta);
 
 		switch(playerState) {
 			case PlayerState.Idle :
@@ -301,6 +392,18 @@ public partial class Player : CharacterBody2D
 			case PlayerState.Walking :
 				velocity = HandleWalking_Pysics(velocity, delta);
 				break;
+			case PlayerState.Sliding :
+				velocity = HandleSliding_Pysics(velocity,delta);
+				break;
+			case PlayerState.Crouched :
+				velocity = HandleCrouching_Pysics(velocity,delta);
+				break;
+			case PlayerState.CrouchWalk:
+				velocity = HandleCrouchWalk_Pysics(velocity,delta);
+				break;
+			case PlayerState.WallHanging:
+				velocity = HandleWallHanging_Pysics(velocity,delta);
+				break;
 		}
 
 		Velocity = velocity;
@@ -308,112 +411,9 @@ public partial class Player : CharacterBody2D
 		MoveAndSlide();
 
 		return;
-		// Add the gravity.
-		// Handle Jump.
-		velocity = HandleJump(delta,Velocity);
-
-		// Get the input direction and handle the movement/deceleration.
-		// As good practice, you should replace UI actions with custom gameplay actions.
-		direction = Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left");
-
-		if(launch_me) {
-			velocity.X += (sprite.FlipH ? -1 : 1)*Speed*0.5f;
-			launch_me = false;
-		} 
-
-		if(is_sliding) {
-			velocity.X = Mathf.MoveToward(velocity.X, 0, Speed*0.9f*((float) delta));
-		} else if (!isWallHanging()) {
-			float real_speed = Speed;
-			float speed_cap = Speed;
-			if (!IsOnFloor()) {
-				real_speed = Speed*0.1f;
-			}
-			if (isCrouching()) {
-				speed_cap = Speed*0.7f;
-			}
-			if (direction != 0) {
-				velocity.X =  Mathf.MoveToward(velocity.X, direction * speed_cap, real_speed*(float) delta*60f);
-			} else {
-				velocity.X = Mathf.MoveToward(velocity.X, 0, real_speed*(float) delta*60f);
-			}
-		}
-
-		Velocity = velocity;
-
-		MoveAndSlide();
-
-		//GetNode<Label>("hud_position_label").Text = "X:"+Position.X.ToString()+" Y:"+Position.Y.ToString();
-
-		// ------------CAMERA HANDLING-----------------
-
-		Vector2 velocity_normalized = velocity.Normalized();
-
-		float x = velocity_normalized.X*(250/default_zoom);
-		float y = Mathf.Min(0, -100-Position.Y);
-
-		
-		float cam_pos_x = Mathf.MoveToward(cam.Position.X, x, Mathf.Sqrt(Math.Abs(cam.Position.X-x))*(float) delta*5);
-		float cam_pos_y = y;
-		
-		cam.Position = new Vector2(cam_pos_x,cam_pos_y);
-
-		// ----------------------------------------------
 	}
 
-	public Vector2 GetGravityAction(double delta) {
-		Vector2 velocity =  new Vector2();
-		if (isWallHanging()) {
-			velocity.Y = 0;
-			was_on_floor += delta;
-		} else if (!IsOnFloor()) {
-			velocity.Y += ( Input.IsActionPressed("jump") ? jump_gravity*0.9f : jump_gravity) * (float)delta;
-			was_on_floor += delta;
-		} else {
-			velocity.Y += ground_gravity * (float)delta;
-			was_on_floor = 0;
-			bonus_jump_count = 0;
-		}
-		return velocity;
-	}
-
-	public Vector2 HandleJump(double delta, Vector2 velocity) {
-		if (isWallHanging()) {
-			velocity.Y = 0;
-			was_on_floor += delta;
-		} else if (!IsOnFloor()) {
-			velocity.Y += ( Input.IsActionPressed("jump") ? jump_gravity*0.9f : jump_gravity) * (float)delta;
-			was_on_floor += delta;
-		} else {
-			velocity.Y += ground_gravity * (float)delta;
-			was_on_floor = 0;
-			bonus_jump_count = 0;
-		}
-		if(isCrouching()) return velocity;
-		if (Input.IsActionJustPressed("jump") && (IsOnFloor() || was_on_floor < 0.1)) {
-			if(is_sliding) {
-				velocity.Y = -0.6f*JumpVelocity;
-				velocity.X = (sprite.FlipH ? -1 : 1)*Speed*3.75f;
-			} else {
-				velocity.Y = -JumpVelocity;
-			}
-		} else if (Input.IsActionJustPressed("jump") && bonus_jump_count > 0 && was_on_floor > 0.2) {
-			velocity.Y = -0.7f*JumpVelocity;
-			bonus_jump_count --;
-		} else if (Input.IsActionJustPressed("jump") && isWallHanging()) {
-			
-			if ((direction > 0 && isWallHangingRight()) || (direction < 0 && isWallHangingLeft())) {
-				velocity.Y = -1.2f*JumpVelocity;
-				velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*0.75f;
-			} else {
-				velocity.Y = -JumpVelocity;
-				velocity.X = (isWallHangingLeft() ? 1 : -1)*Speed*2f;
-				sprite.FlipH = !sprite.FlipH;
-			}
-		}
-		return velocity;
-	}
-
+	// TODO death by falling in void
 	private void _on_hurtbox_area_entered(Area2D area)
 	{
 		if (area.GetCollisionLayerValue(9)) {

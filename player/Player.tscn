@@ -1319,6 +1319,6 @@ debug_color = Color(0, 1, 0, 0.419608)
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(2, -23)
 sprite_frames = ExtResource("1_nhrqf")
-animation = &"drop"
+animation = &"grab_wall"
 
 [connection signal="area_entered" from="Hurtbox" to="." method="_on_hurtbox_area_entered"]
