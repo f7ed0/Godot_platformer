@@ -8,6 +8,9 @@ public enum PlayerState
 
 public partial class Player : CharacterBody2D
 {
+	public SceneTree tree = (SceneTree) Engine.GetMainLoop();
+	public Hud HUD;
+
 	public const float Speed = 175.0f;
 	public const float JumpVelocity = 350.0f;
 	public const int WallHangBase = 2;
@@ -32,6 +35,20 @@ public partial class Player : CharacterBody2D
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
+
+	public override void _Ready() {
+		cam = GetNode<Camera2D>("PlayerCamera");
+		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
+		animation = GetNode<AnimationPlayer>("AnimationPlayer");
+		wallgrab =  new poutre[2];
+		wallgrab[0] = GetNode<poutre>("wallgrab_hitbox_l");
+		wallgrab[1] = GetNode<poutre>("wallgrab_hitbox_r");
+		HUD = (Hud) tree.Root.GetNode("/root/Hud");
+		ptre = GetNode<poutre>("poutre");
+		GD.Print(ptre);
+		default_zoom = cam.Zoom.X;
+		sprite.Play();
+	}
 	
 	public Vector2 HandleGroundedPhysics(Vector2 velocity, double delta) {
 		velocity.Y += ground_gravity * (float) delta;
@@ -76,6 +93,7 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.WallHanging;
 			return HandleWallHanging_Pysics(velocity,delta);
 		}
+		velocity.X = Mathf.MoveToward(velocity.X, getDirection()*Speed, Speed*0.1f*(float) delta*30f);
 		velocity = HandleAerialPhysics(velocity, delta);
 		return velocity;
 	}
@@ -182,6 +200,10 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.CrouchWalk;
 			return HandleCrouchWalk_Pysics(velocity,delta);
 		}
+		if (!IsOnFloor()) {
+			playerState = PlayerState.Falling;
+			return HandleFalling_Physics(velocity,delta);
+		}
 		velocity.X =  Mathf.MoveToward(velocity.X, 0, Speed*(float) delta*30f);
 		return HandleGroundedPhysics(velocity,delta);
 	}
@@ -201,6 +223,10 @@ public partial class Player : CharacterBody2D
 		if (direction == 0) {
 			playerState = PlayerState.Crouched;
 			HandleCrouching_Pysics(velocity, delta);
+		}
+		if (!IsOnFloor()) {
+			playerState = PlayerState.Falling;
+			return HandleFalling_Physics(velocity,delta);
 		}
 		velocity.X = Mathf.MoveToward(velocity.X, direction*Speed*0.7f, Speed*0.7f*(float) delta*30f);
 		return HandleGroundedPhysics(velocity,delta);
@@ -295,19 +321,6 @@ public partial class Player : CharacterBody2D
 	}
 	// ------------------------------------------------------------------------
 
-	public override void _Ready() {
-		cam = GetNode<Camera2D>("PlayerCamera");
-		sprite = GetNode<AnimatedSprite2D>("PlayerSprite");
-		animation = GetNode<AnimationPlayer>("AnimationPlayer");
-		wallgrab =  new poutre[2];
-		wallgrab[0] = GetNode<poutre>("wallgrab_hitbox_l");
-		wallgrab[1] = GetNode<poutre>("wallgrab_hitbox_r");
-		//hud = GetNode<CanvasLayer>("/root/autoload/hud");
-		ptre = GetNode<poutre>("poutre");
-		default_zoom = cam.Zoom.X;
-		sprite.Play();
-	}
-
 	public bool isCrouching() {
 		return Input.IsActionPressed("crouch") || ptre.colliding;
 	}
@@ -372,6 +385,7 @@ public partial class Player : CharacterBody2D
 					HandleWallHanging();
 					break;
 			}
+			HUD.UpdatePosition(Position);
 			oldPlayerState = playerState;
 		}
 

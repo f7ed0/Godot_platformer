@@ -1,0 +1,64 @@
+[gd_scene load_steps=11 format=3 uid="uid://cip4b3gwtbk4x"]
+
+[ext_resource type="PackedScene" uid="uid://ccwoejui1j134" path="res://props/props.tscn" id="1_5qure"]
+[ext_resource type="Texture2D" uid="uid://dol3bi285tly" path="res://oakWoods/decorations/shop_anim.png" id="2_3oemx"]
+[ext_resource type="Script" path="res://props/PropsSprite.cs" id="3_f4w1s"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j7enj"]
+atlas = ExtResource("2_3oemx")
+region = Rect2(0, 0, 118, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c5lda"]
+atlas = ExtResource("2_3oemx")
+region = Rect2(118, 0, 118, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a4sxj"]
+atlas = ExtResource("2_3oemx")
+region = Rect2(236, 0, 118, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sgmq5"]
+atlas = ExtResource("2_3oemx")
+region = Rect2(354, 0, 118, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qd8im"]
+atlas = ExtResource("2_3oemx")
+region = Rect2(472, 0, 118, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nhows"]
+atlas = ExtResource("2_3oemx")
+region = Rect2(590, 0, 118, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_b8wrj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j7enj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c5lda")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a4sxj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sgmq5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qd8im")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nhows")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Props" instance=ExtResource("1_5qure")]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." index="1"]
+position = Vector2(0, -65)
+scale = Vector2(1.2, 1.2)
+sprite_frames = SubResource("SpriteFrames_b8wrj")
+frame_progress = 0.291301
+script = ExtResource("3_f4w1s")

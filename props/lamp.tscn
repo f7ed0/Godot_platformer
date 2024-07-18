@@ -6,5 +6,6 @@
 [node name="Props" instance=ExtResource("1_e3gs1")]
 
 [node name="Sprite2D" parent="." index="0"]
+scale = Vector2(1.2, 1.2)
 texture = ExtResource("2_pls1f")
-offset = Vector2(0, -15.5)
+offset = Vector2(0, -18)

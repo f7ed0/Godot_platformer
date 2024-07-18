@@ -1,11 +1,13 @@
-[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://bvsdancmhpy8j"]
+[gd_resource type="TileSet" load_steps=6 format=3 uid="uid://bvsdancmhpy8j"]
 
 [ext_resource type="PackedScene" uid="uid://h7rn108tcyoc" path="res://props/lamp.tscn" id="1_bepjy"]
+[ext_resource type="PackedScene" uid="uid://cip4b3gwtbk4x" path="res://props/market.tscn" id="2_ftm3a"]
 [ext_resource type="Texture2D" uid="uid://cjnpiw1jbgykj" path="res://oakWoods/oak_woods_tileset.png" id="2_myc8r"]
 
 [sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_q8bun"]
 resource_name = "Props"
 scenes/0/scene = ExtResource("1_bepjy")
+scenes/1/scene = ExtResource("2_ftm3a")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vrlup"]
 texture = ExtResource("2_myc8r")
