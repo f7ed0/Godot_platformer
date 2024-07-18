@@ -10,18 +10,24 @@ public partial class Player : CharacterBody2D
 {
 	public const float Speed = 175.0f;
 	public const float JumpVelocity = 350.0f;
+	public const int WallHangBase = 2;
 
 	public PlayerState playerState = PlayerState.Idle;
 	public PlayerState oldPlayerState = PlayerState.NULL;
 
-	public float default_zoom;
+
+
 	public Camera2D cam;
 	public AnimatedSprite2D sprite;
-	public double was_on_floor;
 	public AnimationPlayer animation;
 	public poutre ptre;
 	public poutre[] wallgrab;
+
+	public float default_zoom;
+
+	public double was_on_floor;
 	public double sliding_time;
+	public int wall_hang_count;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -49,6 +55,10 @@ public partial class Player : CharacterBody2D
 		}
 	}
 
+	public void ResetCountersOnGround() {
+		wall_hang_count = WallHangBase;
+	}
+
 	// ------------------ FALLING ------------------------------
 	public Vector2 HandleFalling_Physics(Vector2 velocity, double delta) {
 		if (IsOnFloor()) {
@@ -61,7 +71,8 @@ public partial class Player : CharacterBody2D
 			velocity.Y = -JumpVelocity;
 			return velocity;
 		}
-		if ((CanWallHangLeft() && Input.IsActionPressed("move_left")) || (CanWallHangRight() && Input.IsActionPressed("move_right"))) {
+		if (((CanWallHangLeft() && Input.IsActionPressed("move_left")) || (CanWallHangRight() && Input.IsActionPressed("move_right"))) && wall_hang_count > 0) {
+			wall_hang_count --;
 			playerState = PlayerState.WallHanging;
 			return HandleWallHanging_Pysics(velocity,delta);
 		}
@@ -101,6 +112,7 @@ public partial class Player : CharacterBody2D
 	// -------------------- IDLE --------------------------------
 	public Vector2 HandleIdling_Pysics(Vector2 velocity, double delta) {
 		// Player use left or right
+		ResetCountersOnGround();
 		if ( getDirection() != 0 ) {
 			playerState = PlayerState.Walking;
 			return HandleWalking_Pysics(velocity, delta);
@@ -260,8 +272,8 @@ public partial class Player : CharacterBody2D
 		if (Input.IsActionJustPressed("jump")) {
 			playerState = PlayerState.Jumping;
 			if ((direction > 0 && CanWallHangRight()) || (direction < 0 && CanWallHangLeft())) {
-				velocity.Y = -1.4f*JumpVelocity;
-				velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*0.5f;
+				velocity.Y = -0.9f*JumpVelocity;
+				velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*0.3f;
 			} else {
 				velocity.Y = -1.2f*JumpVelocity;
 				velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*1.8f;
@@ -274,7 +286,7 @@ public partial class Player : CharacterBody2D
 			velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*0.5f;
 			return HandleFalling_Physics(velocity, delta);
 		}
-		return new Vector2();
+		return new Vector2((CanWallHangRight() ? 1 : -1) * 100,0);
 	}
 
 	public void HandleWallHanging() {

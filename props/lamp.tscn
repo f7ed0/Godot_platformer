@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://h7rn108tcyoc"]
+
+[ext_resource type="PackedScene" uid="uid://ccwoejui1j134" path="res://props/props.tscn" id="1_e3gs1"]
+[ext_resource type="Texture2D" uid="uid://cgd2jwyy1hqje" path="res://oakWoods/decorations/lamp.png" id="2_pls1f"]
+
+[node name="Props" instance=ExtResource("1_e3gs1")]
+
+[node name="Sprite2D" parent="." index="0"]
+texture = ExtResource("2_pls1f")
+offset = Vector2(0, -15.5)

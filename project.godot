@@ -60,8 +60,12 @@ crouch={
 
 [layer_names]
 
+2d_render/layer_1="background_object"
+2d_render/layer_3="Player"
+2d_render/layer_4="Foreground_object"
 2d_physics/layer_1="World"
 2d_physics/layer_2="player"
+2d_physics/layer_4="Foreground_object"
 2d_physics/layer_9="world_boundary"
 
 [physics]
