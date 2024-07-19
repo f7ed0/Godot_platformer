@@ -1,0 +1,59 @@
+[gd_scene load_steps=8 format=3 uid="uid://cd1c34cf3xp1y"]
+
+[ext_resource type="Texture2D" uid="uid://cup3wy36l54k1" path="res://player/portrait.png" id="1_oljnq"]
+[ext_resource type="Script" path="res://autoload/HPCounter.cs" id="1_u58lc"]
+[ext_resource type="Texture2D" uid="uid://d3bqhxks6jvl1" path="res://autoload/circle.png" id="2_7eqyo"]
+[ext_resource type="Script" path="res://autoload/NumericCounter.cs" id="4_dpg1h"]
+[ext_resource type="LabelSettings" uid="uid://gi4bjxr8diij" path="res://autoload/numeric_counter_font_settings.tres" id="4_grxms"]
+[ext_resource type="FontFile" uid="uid://bj1mq3mk8clh2" path="res://autoload/04B_19__.TTF" id="5_uvsp1"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_yutec"]
+font = ExtResource("5_uvsp1")
+font_size = 100
+outline_size = 100
+outline_color = Color(0.333333, 0.333333, 0.333333, 1)
+
+[node name="HPCounter" type="Node2D"]
+position = Vector2(20, 20)
+scale = Vector2(0.2, 0.2)
+script = ExtResource("1_u58lc")
+
+[node name="Portrait" type="Sprite2D" parent="."]
+position = Vector2(255, 255)
+scale = Vector2(16, 16)
+texture = ExtResource("1_oljnq")
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="."]
+offset_right = 512.0
+offset_bottom = 512.0
+value = 100.0
+fill_mode = 4
+texture_under = ExtResource("2_7eqyo")
+texture_progress = ExtResource("2_7eqyo")
+tint_under = Color(0.333333, 0.333333, 0.333333, 1)
+tint_progress = Color(0, 1, 0, 1)
+radial_initial_angle = 180.0
+radial_fill_degrees = 285.0
+
+[node name="NumericCounter" type="Node2D" parent="."]
+position = Vector2(370, 400)
+scale = Vector2(1, 1)
+script = ExtResource("4_dpg1h")
+
+[node name="Label" type="Label" parent="NumericCounter"]
+offset_left = -14.9999
+offset_top = -9.99988
+offset_right = 284.0
+offset_bottom = 191.0
+text = "100
+"
+label_settings = ExtResource("4_grxms")
+
+[node name="Label2" type="Label" parent="NumericCounter"]
+offset_left = 295.0
+offset_top = 0.000133514
+offset_right = 694.0
+offset_bottom = 201.0
+text = "/100
+"
+label_settings = SubResource("LabelSettings_yutec")

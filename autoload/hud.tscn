@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://deyomf4fmld8x"]
+[gd_scene load_steps=3 format=3 uid="uid://deyomf4fmld8x"]
 
 [ext_resource type="Script" path="res://autoload/Hud.cs" id="1_ftsd8"]
+[ext_resource type="PackedScene" uid="uid://cd1c34cf3xp1y" path="res://autoload/hp_counter.tscn" id="2_n47eh"]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_ftsd8")
@@ -12,3 +13,5 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 text = "BONJOUR
 "
+
+[node name="HPCounter" parent="." instance=ExtResource("2_n47eh")]

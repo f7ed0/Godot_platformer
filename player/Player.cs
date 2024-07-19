@@ -1,6 +1,8 @@
 using Godot;
 using System;
 
+// TODO : FIX jump when sliding under a roof
+
 public enum PlayerState
 {
 	Idle,Walking,Jumping,Crouched,CrouchWalk,Sliding,Falling,WallHanging,NULL
@@ -18,7 +20,8 @@ public partial class Player : CharacterBody2D
 	public PlayerState playerState = PlayerState.Idle;
 	public PlayerState oldPlayerState = PlayerState.NULL;
 
-
+	public float hp_max = 50;
+	public float hp = 50;
 
 	public Camera2D cam;
 	public AnimatedSprite2D sprite;
@@ -386,6 +389,7 @@ public partial class Player : CharacterBody2D
 					break;
 			}
 			HUD.UpdatePosition(Position);
+			HUD.updateHP(hp,hp_max);
 			oldPlayerState = playerState;
 		}
 
@@ -451,6 +455,7 @@ public partial class Player : CharacterBody2D
 
 	private void _on_feet_touched(Area2D area) {
 		if (area.GetCollisionLayerValue(9)) {
+			hp -= 15;
 			Position = new Vector2(0,-100);
 			playerState = PlayerState.Idle;
 		}
