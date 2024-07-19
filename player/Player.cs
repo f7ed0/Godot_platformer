@@ -439,14 +439,26 @@ public partial class Player : CharacterBody2D
 		return;
 	}
 
-	// TODO death by falling in void
-	private void _on_hurtbox_area_entered(Area2D area)
-	{
+	private void _on_head_touch(Area2D area) {
+		// Replace with function body.
+	}
+
+
+	private void _on_body_touch(Area2D area) {
+		// Replace with function body.
+	}
+
+
+	private void _on_feet_touched(Area2D area) {
 		if (area.GetCollisionLayerValue(9)) {
 			Position = new Vector2(0,-100);
+			playerState = PlayerState.Idle;
 		}
 	}
+
 }
+
+
 
 
 
