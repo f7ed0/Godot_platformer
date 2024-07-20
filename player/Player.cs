@@ -35,6 +35,7 @@ public partial class Player : CharacterBody2D
 	public double was_on_floor;
 	public double sliding_time;
 	public int wall_hang_count;
+	public double hurt_count;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -334,10 +335,6 @@ public partial class Player : CharacterBody2D
 	}
 	// ------------------------------------------------------------------------
 
-	public bool isCrouching() {
-		return Input.IsActionPressed("crouch") || ptre.colliding;
-	}
-
 	public bool CanWallHangLeft() {
 		return wallgrab[0].colliding && !IsOnFloor();
 	}
@@ -398,10 +395,15 @@ public partial class Player : CharacterBody2D
 					HandleWallHanging();
 					break;
 			}
-			HUD.UpdatePosition(Position);
-			HUD.updateHP(hp,hp_max);
-			oldPlayerState = playerState;
+
 		}
+		if (hp <= 0) {
+			Position = new Vector2(0,-10);
+			hp = hp_max;
+		}
+		HUD.UpdatePosition(Position);
+		HUD.updateHP(hp,hp_max);
+		oldPlayerState = playerState;
 
 		correctSpritePosition();
 
@@ -459,14 +461,24 @@ public partial class Player : CharacterBody2D
 
 
 	private void _on_body_touch(Area2D area) {
+		try {
+			HitBox hitBox = (HitBox) area;
+			GD.Print(hitBox.Type);
+			if (hitBox.Type == HitBoxType.Hit) {
+				hp -= hitBox.DamageAmout;
+			}
+		} catch {
+			GD.Print("UNDEFINED TYPE OF HITBOX");
+		}
 		// Replace with function body.
 	}
 
 
 	private void _on_feet_touched(Area2D area) {
 		if (area.GetCollisionLayerValue(9)) {
+			GD.Print(Position);
 			hp -= 15;
-			Position = new Vector2(0,-100);
+			Position = new Vector2(0,-10);
 			playerState = PlayerState.Idle;
 		}
 	}

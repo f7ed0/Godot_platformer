@@ -51,7 +51,6 @@ public partial class HPCounter : Node2D
 
 	public Color GenerateTint() {
 		float percentage = GetPercentage();
-		GD.Print(percentage);
 		float r,g,b;
 		if (percentage >= 0.5f) {
 			float amount = (percentage-0.5f)*2f;
@@ -64,7 +63,6 @@ public partial class HPCounter : Node2D
 			g = LowHPColor.G*(1-amount) + MidHPColor.G*amount;
 			b = LowHPColor.B*(1-amount) + MidHPColor.B*amount;
 		}
-		GD.Print(r," ",g," ",b);
 		return new Color(r,g,b);
 	}
 

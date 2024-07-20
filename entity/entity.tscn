@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://cr7o6ld6l7fur"]
+
+[ext_resource type="Texture2D" uid="uid://cu5psjbn1pp5r" path="res://icon.svg" id="1_qu5n8"]
+[ext_resource type="PackedScene" uid="uid://cnspii46d7mnq" path="res://entity/HitBox.tscn" id="2_p35ea"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jdewa"]
+atlas = ExtResource("1_qu5n8")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gi1kk"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jdewa")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Entity" type="CharacterBody2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_gi1kk")
+
+[node name="HitBox" parent="." instance=ExtResource("2_p35ea")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

@@ -1383,6 +1383,7 @@ size = Vector2(15, 15)
 size = Vector2(7, 6.5)
 
 [node name="Player" type="CharacterBody2D"]
+collision_layer = 0
 script = ExtResource("1_4wwkc")
 
 [node name="right_force2" type="CollisionShape2D" parent="."]
@@ -1467,7 +1468,7 @@ debug_color = Color(0, 1, 0, 0.419608)
 
 [node name="box_body" type="Area2D" parent="."]
 collision_layer = 2
-collision_mask = 256
+collision_mask = 260
 
 [node name="body_shape" type="CollisionShape2D" parent="box_body"]
 position = Vector2(-3, -2)

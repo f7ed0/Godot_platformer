@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3 uid="uid://b3yvubf7on7o7"]
+
+[ext_resource type="PackedScene" uid="uid://cr7o6ld6l7fur" path="res://entity/entity.tscn" id="1_xrpmv"]
+[ext_resource type="Script" path="res://entity/goomba.cs" id="2_7pqo4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r8lk6"]
+
+[sub_resource type="SeparationRayShape2D" id="SeparationRayShape2D_6mv8n"]
+length = 13.1812
+slide_on_slope = true
+
+[node name="Goomba" instance=ExtResource("1_xrpmv")]
+collision_layer = 0
+collision_mask = 7
+script = ExtResource("2_7pqo4")
+
+[node name="AnimatedSprite2D" parent="." index="0"]
+scale = Vector2(0.2, 0.2)
+
+[node name="HitBox" parent="." index="1"]
+collision_layer = 4
+
+[node name="CollisionShape2D" parent="HitBox" index="0"]
+shape = SubResource("RectangleShape2D_r8lk6")
+debug_color = Color(2.14182e-06, 0.649242, 0.151707, 0.42)
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="." index="3"]
+rotation = 1.5708
+shape = SubResource("SeparationRayShape2D_6mv8n")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="." index="4"]
+rotation = 3.14159
+scale = Vector2(1, 0.959326)
+shape = SubResource("SeparationRayShape2D_6mv8n")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="." index="5"]
+rotation = 4.71239
+scale = Vector2(1, 0.972697)
+shape = SubResource("SeparationRayShape2D_6mv8n")
+
+[node name="CollisionShape2D" parent="." index="6"]
+scale = Vector2(1, 0.986254)
+shape = SubResource("SeparationRayShape2D_6mv8n")
