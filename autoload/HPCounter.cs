@@ -13,22 +13,26 @@ public partial class HPCounter : Node2D
 
 	private float min = 0;
 	private float max = 100;
-	private float current = 100;
+	private float current = -1;
 	private Color current_tint;
 
 	private TextureProgressBar HpBar;
 	private NumericCounter numcounter;
 
 	public void updateValues(float min, float current, float max) {
-		this.min = min;
-		this.max = max;
-		this.current = current;
 		current_tint = GenerateTint();
 		HpBar.MaxValue = max;
 		HpBar.MinValue = min;
 		HpBar.Value = current;
 		HpBar.TintProgress = current_tint;
 		numcounter.UpdateValue(current,max,current_tint);
+		if ( this.current >= 0 && this.current > current ) {
+			GD.Print("LEZGONGUE");
+			GetNode<AnimationPlayer>("Animator").Play("dot");
+		}
+		this.min = min;
+		this.max = max;
+		this.current = current;
 	}   
 
 	public override void _Ready() {

@@ -4,6 +4,11 @@ using System;
 public partial class NumericCounter : Node2D
 {
 
+	public override void _Ready()
+	{
+	}
+
+
 	public void UpdateValue(float current, float max, Color color) {
 		Label label = GetNode<Label>("Label");
 		Label label2 = GetNode<Label>("Label2");

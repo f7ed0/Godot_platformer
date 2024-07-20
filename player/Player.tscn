@@ -15,8 +15,8 @@
 [ext_resource type="Shape2D" uid="uid://dbmybnkiebqoe" path="res://player/hitboxes/standing/down.tres" id="6_p7dme"]
 [ext_resource type="Script" path="res://player/poutre.cs" id="7_huw4r"]
 [ext_resource type="Shape2D" uid="uid://b8qj0kmmc6qha" path="res://player/hitboxes/crouch/down.tres" id="14_s8vxt"]
-[ext_resource type="Shape2D" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
-[ext_resource type="Shape2D" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
+[ext_resource type="Shape2D" uid="uid://riwt2jhgb6xu" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
+[ext_resource type="Shape2D" uid="uid://blgq5tqf65jmf" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
 [ext_resource type="Shape2D" path="res://player/head.tres" id="18_5fm1l"]
 
 [sub_resource type="Animation" id="Animation_hb18o"]
@@ -632,7 +632,7 @@ tracks/16/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1e-05),
 "update": 0,
-"values": [Vector2(-3, -2)]
+"values": [Vector2(-3, 0.5)]
 }
 tracks/17/type = "value"
 tracks/17/imported = false
@@ -668,7 +668,7 @@ tracks/19/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1e-05),
 "update": 0,
-"values": [Vector2(-3, 12.5)]
+"values": [Vector2(-3, 15)]
 }
 
 [sub_resource type="Animation" id="Animation_q456a"]
@@ -1455,14 +1455,14 @@ debug_color = Color(0.984459, 0, 0.34336, 0.42)
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(2, -23)
 sprite_frames = ExtResource("1_nhrqf")
-animation = &"jump"
+animation = &"idle"
 
 [node name="box_feet" type="Area2D" parent="."]
 collision_layer = 2
 collision_mask = 256
 
 [node name="feet_shape" type="CollisionShape2D" parent="box_feet"]
-position = Vector2(-3, 12.5)
+position = Vector2(-3, 15)
 shape = ExtResource("16_kiabn")
 debug_color = Color(0, 1, 0, 0.419608)
 
@@ -1471,7 +1471,7 @@ collision_layer = 2
 collision_mask = 260
 
 [node name="body_shape" type="CollisionShape2D" parent="box_body"]
-position = Vector2(-3, -2)
+position = Vector2(-3, 0.5)
 shape = ExtResource("17_k38u3")
 debug_color = Color(0.856456, 0.793312, 0.958421, 0.419608)
 
