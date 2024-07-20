@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Reflection.Metadata;
 
 // TODO : FIX jump when sliding under a roof
 
@@ -118,6 +119,11 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.Idle;
 			velocity = HandleIdling_Pysics(velocity, delta);
 			return velocity;
+		}
+		if (CanWallHang() && Input.IsActionJustPressed("wall_hang") && wall_hang_count > 0) {
+			wall_hang_count --;
+			playerState = PlayerState.WallHanging;
+			return HandleWallHanging_Pysics(velocity,delta);
 		}
 		// 
 		velocity.X = Mathf.MoveToward(velocity.X, getDirection()*Speed, Speed*0.1f*(float) delta*30f);
@@ -310,10 +316,14 @@ public partial class Player : CharacterBody2D
 			}
 			return velocity;
 		}
-		if (Input.IsActionJustReleased("wall_hang")) {
-			playerState = PlayerState.Falling;
+		if (!Input.IsActionPressed("wall_hang")) {
+			playerState = PlayerState.Idle;
 			velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*0.5f;
-			return HandleFalling_Physics(velocity, delta);
+			return HandleIdling_Pysics(velocity,delta);
+		}
+		if ( !CanWallHang() ) {
+			playerState = PlayerState.Idle;
+			return HandleIdling_Pysics(velocity,delta);
 		}
 		return new Vector2((CanWallHangRight() ? 1 : -1) * 100,0);
 	}
@@ -352,7 +362,7 @@ public partial class Player : CharacterBody2D
 		Vector2 velocity_normalized = Velocity.Normalized();
 
 		float x = velocity_normalized.X*(250/default_zoom);
-		float y = Mathf.Min(0, -100-Position.Y);
+		float y = Mathf.Min(0, -Position.Y);
 
 		float cam_pos_x = Mathf.MoveToward(cam.Position.X, x, Mathf.Sqrt(Math.Abs(cam.Position.X-x))*(float) delta*5);
 		float cam_pos_y = y;
