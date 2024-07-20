@@ -91,7 +91,7 @@ public partial class Player : CharacterBody2D
 			velocity.Y = -JumpVelocity;
 			return velocity;
 		}
-		if (((CanWallHangLeft() && Input.IsActionPressed("move_left")) || (CanWallHangRight() && Input.IsActionPressed("move_right"))) && wall_hang_count > 0) {
+		if (CanWallHang() && Input.IsActionPressed("wall_hang") && wall_hang_count > 0) {
 			wall_hang_count --;
 			playerState = PlayerState.WallHanging;
 			return HandleWallHanging_Pysics(velocity,delta);
@@ -310,7 +310,7 @@ public partial class Player : CharacterBody2D
 			}
 			return velocity;
 		}
-		if (Input.IsActionJustPressed("crouch")) {
+		if (Input.IsActionJustReleased("wall_hang")) {
 			playerState = PlayerState.Falling;
 			velocity.X = (CanWallHangLeft() ? 1 : -1)*Speed*0.5f;
 			return HandleFalling_Physics(velocity, delta);
