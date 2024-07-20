@@ -170,7 +170,7 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.Idle;
 			return HandleIdling_Pysics(velocity, delta);
 		}
-		if ( Input.IsActionJustPressed("jump") ) {
+		if ( Input.IsActionJustPressed("jump") && !ptre.colliding) {
 			playerState = PlayerState.Jumping;
 			velocity.Y = -0.6f*JumpVelocity;
 			velocity.X = (sprite.FlipH ? -1 : 1)*Speed*3f;

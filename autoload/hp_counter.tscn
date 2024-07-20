@@ -37,7 +37,6 @@ radial_fill_degrees = 285.0
 
 [node name="NumericCounter" type="Node2D" parent="."]
 position = Vector2(370, 400)
-scale = Vector2(1, 1)
 script = ExtResource("4_dpg1h")
 
 [node name="Label" type="Label" parent="NumericCounter"]
