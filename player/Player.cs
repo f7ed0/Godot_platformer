@@ -96,6 +96,7 @@ public partial class Player : CharacterBody2D
 		if (CanWallHang() && Input.IsActionPressed("wall_hang") && wall_hang_count > 0) {
 			wall_hang_count --;
 			playerState = PlayerState.WallHanging;
+			velocity.Y = 0;
 			return HandleWallHanging_Pysics(velocity,delta);
 		}
 		velocity.X = Mathf.MoveToward(velocity.X, getDirection()*Speed, Speed*0.1f*(float) delta*30f);
@@ -124,6 +125,7 @@ public partial class Player : CharacterBody2D
 		if (CanWallHang() && Input.IsActionJustPressed("wall_hang") && wall_hang_count > 0) {
 			wall_hang_count --;
 			playerState = PlayerState.WallHanging;
+			velocity.Y = 0;
 			return HandleWallHanging_Pysics(velocity,delta);
 		}
 		// 
@@ -326,7 +328,9 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.Idle;
 			return HandleIdling_Pysics(velocity,delta);
 		}
-		return new Vector2((CanWallHangRight() ? 1 : -1) * 100,0);
+		velocity.X = (CanWallHangRight() ? 1 : -1) * 100f;
+		velocity.Y = Mathf.MoveToward(velocity.Y, 60f, jump_gravity*0.05f*(float) delta);
+		return velocity;
 	}
 
 	public void HandleWallHanging() {
