@@ -61,7 +61,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public Vector2 HandleAerialPhysics(Vector2 velocity,double delta) {
-		velocity.Y += (Input.IsActionPressed("jump") ? 0.9f : 1f ) * jump_gravity * (float) delta;
+		velocity.Y += (Input.IsActionPressed("jump") ? 0.8f : 1f ) * jump_gravity * (float) delta;
 		return velocity;
 	}
 
@@ -88,7 +88,7 @@ public partial class Player : CharacterBody2D
 			velocity = HandleIdling_Pysics(velocity, delta);
 			return velocity;
 		}
-		if (was_on_floor < 0.2 && Input.IsActionJustPressed("jump")) {
+		if (was_on_floor < 0.1 && Input.IsActionJustPressed("jump")) {
 			playerState = PlayerState.Jumping;
 			velocity.Y = -JumpVelocity;
 			return velocity;
@@ -363,7 +363,7 @@ public partial class Player : CharacterBody2D
 		Vector2 velocity_normalized = Velocity.Normalized();
 
 		float x = velocity_normalized.X*(250/default_zoom);
-		float y = Mathf.Min(0, -Position.Y);
+		float y = Math.Max(-Position.Y-105,Mathf.Min(0, -Position.Y));
 
 		float cam_pos_x = Mathf.MoveToward(cam.Position.X, x, Mathf.Sqrt(Math.Abs(cam.Position.X-x))*(float) delta*5);
 		float cam_pos_y = y;

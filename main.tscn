@@ -61,10 +61,10 @@ position = Vector2(91, 0)
 light_mask = 4
 visibility_layer = 4
 z_index = 10
-position = Vector2(3, 45)
+position = Vector2(376, -145)
 
 [node name="Area2D" type="Area2D" parent="."]
-position = Vector2(0, 170)
+position = Vector2(0, 200)
 collision_layer = 256
 collision_mask = 0
 
