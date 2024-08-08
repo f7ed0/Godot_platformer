@@ -1,13 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://b3yvubf7on7o7"]
+[gd_scene load_steps=7 format=3 uid="uid://b3yvubf7on7o7"]
 
 [ext_resource type="PackedScene" uid="uid://cr7o6ld6l7fur" path="res://entity/entity.tscn" id="1_xrpmv"]
 [ext_resource type="Script" path="res://entity/goomba.cs" id="2_7pqo4"]
+[ext_resource type="PackedScene" uid="uid://l8ca3ofbr0l5" path="res://player/poutre.tscn" id="3_lvclt"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_r8lk6"]
 
 [sub_resource type="SeparationRayShape2D" id="SeparationRayShape2D_6mv8n"]
 length = 13.1812
 slide_on_slope = true
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i1nth"]
+size = Vector2(10, 10)
 
 [node name="Goomba" instance=ExtResource("1_xrpmv")]
 collision_layer = 0
@@ -54,3 +58,15 @@ shape = SubResource("SeparationRayShape2D_6mv8n")
 position = Vector2(0, 9)
 rotation = 1.5708
 shape = SubResource("SeparationRayShape2D_6mv8n")
+
+[node name="wisk_right" parent="." index="9" instance=ExtResource("3_lvclt")]
+position = Vector2(20, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="wisk_right" index="0"]
+shape = SubResource("RectangleShape2D_i1nth")
+
+[node name="wisk_left" parent="." index="10" instance=ExtResource("3_lvclt")]
+position = Vector2(-20, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="wisk_left" index="0"]
+shape = SubResource("RectangleShape2D_i1nth")

@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://l8ca3ofbr0l5"]
+
+[ext_resource type="Script" path="res://player/poutre.cs" id="1_65aix"]
+
+[node name="poutre" type="StaticBody2D"]
+collision_layer = 0
+script = ExtResource("1_65aix")
