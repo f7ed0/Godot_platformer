@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://dr5kxssl071ba"]
+[gd_scene load_steps=31 format=3 uid="uid://dr5kxssl071ba"]
 
 [ext_resource type="Script" path="res://player/Player.cs" id="1_4wwkc"]
 [ext_resource type="SpriteFrames" uid="uid://vdxng17jev72" path="res://player/player_1.tres" id="1_nhrqf"]
@@ -17,12 +17,7 @@
 [ext_resource type="Shape2D" uid="uid://b8qj0kmmc6qha" path="res://player/hitboxes/crouch/down.tres" id="14_s8vxt"]
 [ext_resource type="Shape2D" uid="uid://riwt2jhgb6xu" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
 [ext_resource type="Shape2D" uid="uid://blgq5tqf65jmf" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
-<<<<<<< HEAD
-[ext_resource type="PackedScene" uid="uid://l8ca3ofbr0l5" path="res://player/poutre.tscn" id="17_sb4ou"]
 [ext_resource type="Shape2D" path="res://player/head.tres" id="18_5fm1l"]
-=======
-[ext_resource type="Shape2D" uid="uid://bh1id6tpjo72u" path="res://player/head.tres" id="18_5fm1l"]
->>>>>>> origin/dev
 
 [sub_resource type="Animation" id="Animation_hb18o"]
 resource_name = "crouch"
@@ -1381,7 +1376,7 @@ _data = {
 "wall_hang": SubResource("Animation_sq6f5")
 }
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_5mrgh"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qk748"]
 size = Vector2(15, 15)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jvqjl"]
@@ -1432,11 +1427,13 @@ libraries = {
 "": SubResource("AnimationLibrary_gf5mm")
 }
 
-[node name="poutre" parent="." instance=ExtResource("17_sb4ou")]
+[node name="poutre" type="StaticBody2D" parent="."]
+collision_layer = 0
+script = ExtResource("7_huw4r")
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="poutre"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="poutre"]
 position = Vector2(-3, -13)
-shape = SubResource("RectangleShape2D_5mrgh")
+shape = SubResource("RectangleShape2D_qk748")
 debug_color = Color(0.713429, 0.482696, 0.0873926, 0.42)
 
 [node name="wallgrab_hitbox_r" type="StaticBody2D" parent="."]

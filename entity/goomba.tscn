@@ -11,7 +11,7 @@ length = 13.1812
 slide_on_slope = true
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i1nth"]
-size = Vector2(10, 10)
+size = Vector2(4, 4)
 
 [node name="Goomba" instance=ExtResource("1_xrpmv")]
 collision_layer = 0
@@ -60,13 +60,15 @@ rotation = 1.5708
 shape = SubResource("SeparationRayShape2D_6mv8n")
 
 [node name="wisk_right" parent="." index="9" instance=ExtResource("3_lvclt")]
-position = Vector2(20, 16)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="wisk_right" index="0"]
+position = Vector2(15, 17)
 shape = SubResource("RectangleShape2D_i1nth")
+debug_color = Color(0.957847, 1.05888e-06, 0.530357, 0.42)
 
 [node name="wisk_left" parent="." index="10" instance=ExtResource("3_lvclt")]
-position = Vector2(-20, 16)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="wisk_left" index="0"]
+position = Vector2(-15, 17)
 shape = SubResource("RectangleShape2D_i1nth")
+debug_color = Color(0.975807, 0, 0.416634, 0.42)

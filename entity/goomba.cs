@@ -17,9 +17,10 @@ public partial class goomba : CharacterBody2D
 	}
 
 	public override void _PhysicsProcess(double delta) {	
+		GD.Print(wisk_left.colliding," ",wisk_right.colliding);
 		Vector2 velocity = Velocity;
 		if (!IsOnFloor()) {
-			velocity.Y += gravity*0.25f;
+			velocity.Y += gravity*(float)delta;
 		} else {
 			velocity.X = direction*Speed*(float)delta;
 		}
@@ -33,7 +34,8 @@ public partial class goomba : CharacterBody2D
 				GD.Print(collision_angle);
 				direction = -1*direction;
 			}	
-		} else if (direction > 0 && !wisk_right.colliding) {
+		}
+		if (direction > 0 && !wisk_right.colliding) {
 			direction = -1*direction;
 		} else if (direction < 0 && !wisk_left.colliding) {
 			direction = -1*direction;
