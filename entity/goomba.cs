@@ -7,6 +7,7 @@ public partial class goomba : CharacterBody2D
 	public const float JumpVelocity = -400.0f;
 	public float direction = 1;
 	public poutre wisk_left,wisk_right;
+	public AnimatedSprite2D animatedsprite;
 
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -14,9 +15,18 @@ public partial class goomba : CharacterBody2D
 	public override void _Ready() {
 		wisk_left = GetNode<poutre>("wisk_left");
 		wisk_right = GetNode<poutre>("wisk_right");
+		animatedsprite = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
+		animatedsprite.Play();
+		animatedsprite.FlipH = true;
+	}
+
+	private void SetSprite() {
+		animatedsprite.FlipH = direction > 0;
+		animatedsprite.Position = direction > 0 ? new Vector2(-6,1) : new Vector2(6,1);
 	}
 
 	public override void _PhysicsProcess(double delta) {	
+		SetSprite();
 		GD.Print(wisk_left.colliding," ",wisk_right.colliding);
 		Vector2 velocity = Velocity;
 		if (!IsOnFloor()) {
