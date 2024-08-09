@@ -27,7 +27,6 @@ public partial class HPCounter : Node2D
 		HpBar.TintProgress = current_tint;
 		numcounter.UpdateValue(current,max,current_tint);
 		if ( this.current >= 0 && this.current > current ) {
-			GD.Print("LEZGONGUE");
 			GetNode<AnimationPlayer>("Animator").Play("dot");
 		}
 		this.min = min;

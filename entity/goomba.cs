@@ -27,7 +27,6 @@ public partial class goomba : CharacterBody2D
 
 	public override void _PhysicsProcess(double delta) {	
 		SetSprite();
-		GD.Print(wisk_left.colliding," ",wisk_right.colliding);
 		Vector2 velocity = Velocity;
 		if (!IsOnFloor()) {
 			velocity.Y += gravity*(float)delta;
@@ -41,7 +40,6 @@ public partial class goomba : CharacterBody2D
 		if (collided) {
 			float collision_angle = GetLastSlideCollision().GetAngle();
 			if (Mathf.Abs(Mathf.Abs(collision_angle) - MathF.PI*0.5) < Mathf.Pi*0.2) {
-				GD.Print(collision_angle);
 				direction = -1*direction;
 			}	
 		}

@@ -14,6 +14,7 @@ public partial class Player : CharacterBody2D
 	public Hud HUD;
 
 	public const float Speed = 175.0f;
+	public const float SprintSpeed = 250.0f;
 	public const float JumpVelocity = 350.0f;
 	public const int WallHangBase = 2;
 
@@ -53,7 +54,6 @@ public partial class Player : CharacterBody2D
 		wallgrab[1] = GetNode<poutre>("wallgrab_hitbox_r");
 		HUD = (Hud) tree.Root.GetNode("/root/Hud");
 		ptre = GetNode<poutre>("poutre");
-		GD.Print(ptre);
 		default_zoom = cam.Zoom.X;
 		standart_zoom = cam.Zoom;
 		sprite.Play();
@@ -291,7 +291,8 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.CrouchWalk;
 			return HandleCrouchWalk_Pysics(velocity,delta);
 		}
-		velocity.X = Mathf.MoveToward(velocity.X, direction*Speed, Speed*(float) delta*30f);
+		float speed = Input.IsActionPressed("sprint") ? SprintSpeed : Speed;
+		velocity.X = Mathf.MoveToward(velocity.X, direction*speed, speed*(float) delta*30f);
 		return HandleGroundedPhysics(velocity,delta);
 	}
 
@@ -300,7 +301,11 @@ public partial class Player : CharacterBody2D
 			oldPlayerState = PlayerState.NULL;
 		}
 		if (Math.Abs(Velocity.X) > 0) {
-			animation.Play("walking");
+			if (Input.IsActionPressed("sprint") ) {
+				animation.Play("sprinting");
+			} else {
+				animation.Play("walking");
+			}
 		} else {
 			animation.Play("idle");
 		}
@@ -369,8 +374,6 @@ public partial class Player : CharacterBody2D
 		float coefzoom = Mathf.Max(current_height_ratio,current_width_ratio);
 
 		cam.Zoom = new Vector2(standart_zoom.X * coefzoom, standart_zoom.Y * coefzoom);
-
-		GD.Print(cam.Zoom);
 
 		Vector2 velocity_normalized = Velocity.Normalized();
 
@@ -479,7 +482,6 @@ public partial class Player : CharacterBody2D
 	private void _on_body_touch(Area2D area) {
 		try {
 			HitBox hitBox = (HitBox) area;
-			GD.Print(hitBox.Type);
 			if (hitBox.Type == HitBoxType.Hit) {
 				hp -= hitBox.DamageAmout;
 			}
@@ -492,7 +494,6 @@ public partial class Player : CharacterBody2D
 
 	private void _on_feet_touched(Area2D area) {
 		if (area.GetCollisionLayerValue(9)) {
-			GD.Print(Position);
 			hp -= 15;
 			Position = new Vector2(0,-10);
 			playerState = PlayerState.Idle;
