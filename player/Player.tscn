@@ -17,7 +17,7 @@
 [ext_resource type="Shape2D" uid="uid://b8qj0kmmc6qha" path="res://player/hitboxes/crouch/down.tres" id="14_s8vxt"]
 [ext_resource type="Shape2D" uid="uid://riwt2jhgb6xu" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
 [ext_resource type="Shape2D" uid="uid://blgq5tqf65jmf" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
-[ext_resource type="Shape2D" path="res://player/head.tres" id="18_5fm1l"]
+[ext_resource type="Shape2D" uid="uid://bh1id6tpjo72u" path="res://player/head.tres" id="18_5fm1l"]
 
 [sub_resource type="Animation" id="Animation_hb18o"]
 resource_name = "crouch"

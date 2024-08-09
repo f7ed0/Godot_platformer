@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Reflection.Metadata;
 
 // TODO : FIX jump when sliding under a roof
 
@@ -17,6 +16,10 @@ public partial class Player : CharacterBody2D
 	public const float Speed = 175.0f;
 	public const float JumpVelocity = 350.0f;
 	public const int WallHangBase = 2;
+
+	public const float standart_width = 1280;
+	public const float standart_height = 720;
+	public Vector2 standart_zoom = new Vector2();
 
 	public PlayerState playerState = PlayerState.Idle;
 	public PlayerState oldPlayerState = PlayerState.NULL;
@@ -52,6 +55,7 @@ public partial class Player : CharacterBody2D
 		ptre = GetNode<poutre>("poutre");
 		GD.Print(ptre);
 		default_zoom = cam.Zoom.X;
+		standart_zoom = cam.Zoom;
 		sprite.Play();
 	}
 	
@@ -360,6 +364,14 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleCamera(double delta) {
+		float current_height_ratio = DisplayServer.WindowGetSize().Y / standart_height;
+		float current_width_ratio = DisplayServer.WindowGetSize().X / standart_width;
+		float coefzoom = Mathf.Max(current_height_ratio,current_width_ratio);
+
+		cam.Zoom = new Vector2(standart_zoom.X * coefzoom, standart_zoom.Y * coefzoom);
+
+		GD.Print(cam.Zoom);
+
 		Vector2 velocity_normalized = Velocity.Normalized();
 
 		float x = velocity_normalized.X*(250/default_zoom);
