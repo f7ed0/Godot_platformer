@@ -17,7 +17,7 @@
 [ext_resource type="Shape2D" uid="uid://b8qj0kmmc6qha" path="res://player/hitboxes/crouch/down.tres" id="14_s8vxt"]
 [ext_resource type="Shape2D" uid="uid://riwt2jhgb6xu" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
 [ext_resource type="Shape2D" uid="uid://blgq5tqf65jmf" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
-[ext_resource type="Shape2D" path="res://player/head.tres" id="18_5fm1l"]
+[ext_resource type="Shape2D" uid="uid://bh1id6tpjo72u" path="res://player/head.tres" id="18_5fm1l"]
 
 [sub_resource type="Animation" id="Animation_5sqsk"]
 resource_name = "crouch_walking"
@@ -223,6 +223,35 @@ tracks/1/keys = {
 }]
 }
 
+[sub_resource type="Animation" id="Animation_2dc56"]
+resource_name = "sprinting"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSprite:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1e-05),
+"update": 1,
+"values": [&"sprinting"]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimationPlayer/HitboxAnimator")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": ["standing"],
+"method": &"play"
+}]
+}
+
 [sub_resource type="Animation" id="Animation_euji6"]
 resource_name = "walking"
 tracks/0/type = "value"
@@ -265,35 +294,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1e-05),
 "update": 1,
 "values": [&"grab_wall"]
-}
-tracks/1/type = "method"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("AnimationPlayer/HitboxAnimator")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"values": [{
-"args": ["standing"],
-"method": &"play"
-}]
-}
-
-[sub_resource type="Animation" id="Animation_2dc56"]
-resource_name = "sprinting"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("PlayerSprite:animation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1e-05),
-"update": 1,
-"values": [&"sprinting"]
 }
 tracks/1/type = "method"
 tracks/1/imported = false
@@ -1047,30 +1047,32 @@ script = ExtResource("1_4wwkc")
 position = Vector2(-3, -10)
 rotation = -1.5708
 shape = ExtResource("3_i5lv3")
+disabled = true
 
 [node name="left_force2" type="CollisionShape2D" parent="."]
 position = Vector2(-3, -10)
 rotation = 1.5708
 shape = ExtResource("4_swmrr")
+disabled = true
 
 [node name="right_force" type="CollisionShape2D" parent="."]
-position = Vector2(-3, 8)
+position = Vector2(0, 4)
 rotation = -1.5708
-shape = ExtResource("3_i5lv3")
+shape = ExtResource("3_c7tma")
 
 [node name="left_force" type="CollisionShape2D" parent="."]
-position = Vector2(-3, 8)
+position = Vector2(0, 4)
 rotation = 1.5708
-shape = ExtResource("4_swmrr")
+shape = ExtResource("4_efqwh")
 
 [node name="head_force" type="CollisionShape2D" parent="."]
-position = Vector2(-3, 0)
+position = Vector2(0, 4)
 rotation = 3.14159
-shape = ExtResource("5_qo0el")
+shape = ExtResource("5_3eyw2")
 
 [node name="foot_force" type="CollisionShape2D" parent="."]
-position = Vector2(-3, 0)
-shape = ExtResource("6_p7dme")
+position = Vector2(0, 4)
+shape = ExtResource("14_s8vxt")
 
 [node name="PlayerCamera" type="Camera2D" parent="."]
 position = Vector2(-1, 0)
@@ -1127,6 +1129,7 @@ collision_mask = 256
 [node name="feet_shape" type="CollisionShape2D" parent="box_feet"]
 position = Vector2(-3, 15)
 shape = ExtResource("16_kiabn")
+disabled = true
 debug_color = Color(0, 1, 0, 0.419608)
 
 [node name="box_body" type="Area2D" parent="."]
@@ -1134,8 +1137,8 @@ collision_layer = 2
 collision_mask = 260
 
 [node name="body_shape" type="CollisionShape2D" parent="box_body"]
-position = Vector2(-3, 0.5)
-shape = ExtResource("17_k38u3")
+position = Vector2(-3, 3.5)
+shape = SubResource("RectangleShape2D_esonr")
 debug_color = Color(0.93841, 0.823708, 0.358609, 0.419608)
 
 [node name="box_head" type="Area2D" parent="."]
@@ -1145,6 +1148,7 @@ collision_mask = 256
 [node name="head_shape" type="CollisionShape2D" parent="box_head"]
 position = Vector2(-3, -16.5)
 shape = ExtResource("18_5fm1l")
+disabled = true
 debug_color = Color(0, 1, 0, 0.419608)
 
 [connection signal="area_entered" from="box_feet" to="." method="_on_feet_touched"]

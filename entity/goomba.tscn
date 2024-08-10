@@ -92,6 +92,7 @@ frame_progress = 0.0174884
 
 [node name="HitBox" parent="." index="1"]
 collision_layer = 4
+Ownership = "goomba"
 
 [node name="CollisionShape2D" parent="HitBox" index="0"]
 shape = SubResource("RectangleShape2D_r8lk6")

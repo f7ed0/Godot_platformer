@@ -2,13 +2,15 @@ using Godot;
 using System;
 
 public enum HitBoxType {
-	Hit, Hurt
+	Hit, Hurt, Both
 }
 
 public partial class HitBox : Area2D
 {
 	[Export]
 	public HitBoxType Type {set; get;} = HitBoxType.Hit;
+	[Export]
+	public String Ownership {set; get;} = "None";
 	[Export]
 	public float DamageAmout = 10;
 	
