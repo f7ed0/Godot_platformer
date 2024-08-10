@@ -109,7 +109,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleFalling() {
-		animation.Play("drop");
+		animation.Play("falling");
 	}
 	// ---------------------------------------------------------
 
@@ -139,7 +139,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleJumping() {
-		animation.Play("jump");
+		animation.Play("jumping");
 	}
 	// ----------------------------------------------------------
 
@@ -201,8 +201,8 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleSliding() {
-		animation.Play("slide_start");
-		animation.Queue("slide");
+		animation.Play("sliding_start");
+		animation.Queue("sliding");
 	}
 	// ------------------------------------------------------------------------
 
@@ -225,7 +225,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleCrouching() {
-		animation.Play("crouch");
+		animation.Play("crouching");
 	}
 	// ------------------------------------------------------------------------
 
@@ -253,9 +253,9 @@ public partial class Player : CharacterBody2D
 			oldPlayerState = PlayerState.NULL;
 		}
 		if (Math.Abs(Velocity.X) > 0) {
-			animation.Play("crouch_walk");
+			animation.Play("crouch_walking");
 		} else {
-			animation.Play("crouch");
+			animation.Play("crouching");
 		}
 		sprite.FlipH = getDirection() < 0;
 	}
@@ -343,7 +343,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleWallHanging() {
-		animation.Play("wall_hang");
+		animation.Play("wall_hanging");
 		sprite.FlipH = CanWallHangLeft();
 	}
 	// ------------------------------------------------------------------------
