@@ -50,4 +50,11 @@ public partial class goomba : CharacterBody2D
 		}
 		//GD.Print(Position);
 	}
+
+	public void Die() {
+		Position = new Vector2(0,1000);
+	}
+
 }
+
+

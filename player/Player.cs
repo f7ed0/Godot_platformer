@@ -482,7 +482,7 @@ public partial class Player : CharacterBody2D
 	private void _on_body_touch(Area2D area) {
 		try {
 			HitBox hitBox = (HitBox) area;
-			if (hitBox.Type == HitBoxType.Hit) {
+			if (hitBox.Type == HitBoxType.Hit || hitBox.Type == HitBoxType.Both) {
 				hp -= hitBox.DamageAmout;
 			}
 		} catch {
@@ -497,7 +497,21 @@ public partial class Player : CharacterBody2D
 			hp -= 15;
 			Position = new Vector2(0,-10);
 			playerState = PlayerState.Idle;
+			return;
 		}
+		try {
+			HitBox box = (HitBox) area;  
+			
+			if ( box.Type == HitBoxType.Hurt || box.Type == HitBoxType.Both ) {
+				if ( box.Ownership == "goomba" ) {
+					Velocity = new Vector2(Velocity.X, Velocity.Y < -400.0f ? Velocity.Y : -400.0f );
+					area.GetParent<goomba>().Die();
+				}
+			} 
+		} catch {
+			GD.Print("UNDEFINED TYPE OF HITBOX");
+		}
+
 	}
 
 }

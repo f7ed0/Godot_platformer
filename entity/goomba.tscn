@@ -1,9 +1,10 @@
-[gd_scene load_steps=17 format=3 uid="uid://b3yvubf7on7o7"]
+[gd_scene load_steps=19 format=3 uid="uid://b3yvubf7on7o7"]
 
 [ext_resource type="PackedScene" uid="uid://cr7o6ld6l7fur" path="res://entity/entity.tscn" id="1_xrpmv"]
 [ext_resource type="Script" path="res://entity/goomba.cs" id="2_7pqo4"]
 [ext_resource type="PackedScene" uid="uid://l8ca3ofbr0l5" path="res://player/poutre.tscn" id="3_lvclt"]
 [ext_resource type="Texture2D" uid="uid://crh2vinuo8qvr" path="res://entity/Daco_4487174.png" id="3_xrnal"]
+[ext_resource type="PackedScene" uid="uid://cnspii46d7mnq" path="res://entity/HitBox.tscn" id="4_rd2fj"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4jn0s"]
 atlas = ExtResource("3_xrnal")
@@ -69,6 +70,9 @@ animations = [{
 "speed": 8.0
 }]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ysi1h"]
+size = Vector2(20, 2)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_r8lk6"]
 
 [sub_resource type="SeparationRayShape2D" id="SeparationRayShape2D_6mv8n"]
@@ -90,55 +94,68 @@ sprite_frames = SubResource("SpriteFrames_n3etq")
 animation = &"walking"
 frame_progress = 0.0174884
 
-[node name="HitBox" parent="." index="1"]
+[node name="HurtBox" parent="." index="1" instance=ExtResource("4_rd2fj")]
+position = Vector2(0, -10)
+collision_layer = 4
+Type = 1
+Ownership = "goomba"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox" index="0"]
+shape = SubResource("RectangleShape2D_ysi1h")
+debug_color = Color(2.14182e-06, 0.649242, 0.151707, 0.42)
+
+[node name="HitBox" parent="." index="2"]
+position = Vector2(0, 1)
 collision_layer = 4
 Ownership = "goomba"
 
 [node name="CollisionShape2D" parent="HitBox" index="0"]
 shape = SubResource("RectangleShape2D_r8lk6")
-debug_color = Color(2.14182e-06, 0.649242, 0.151707, 0.42)
+debug_color = Color(0.825004, 0.366895, 0.416938, 0.42)
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="." index="3"]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="." index="4"]
 position = Vector2(0, -9)
 rotation = 1.5708
 shape = SubResource("SeparationRayShape2D_6mv8n")
 
-[node name="CollisionShape2D4" type="CollisionShape2D" parent="." index="4"]
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="." index="5"]
 rotation = 3.14159
 scale = Vector2(1, 0.959326)
 shape = SubResource("SeparationRayShape2D_6mv8n")
 
-[node name="CollisionShape2D3" type="CollisionShape2D" parent="." index="5"]
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="." index="6"]
 position = Vector2(0, -9)
 rotation = 4.71239
 scale = Vector2(1, 0.972697)
 shape = SubResource("SeparationRayShape2D_6mv8n")
 
-[node name="CollisionShape2D" parent="." index="6"]
+[node name="CollisionShape2D" parent="." index="7"]
 scale = Vector2(1, 0.986254)
 shape = SubResource("SeparationRayShape2D_6mv8n")
 
-[node name="CollisionShape2D5" type="CollisionShape2D" parent="." index="7"]
+[node name="CollisionShape2D5" type="CollisionShape2D" parent="." index="8"]
 position = Vector2(0, 9)
 rotation = -1.5708
 scale = Vector2(0.972697, 0.972697)
 shape = SubResource("SeparationRayShape2D_6mv8n")
 
-[node name="CollisionShape2D6" type="CollisionShape2D" parent="." index="8"]
+[node name="CollisionShape2D6" type="CollisionShape2D" parent="." index="9"]
 position = Vector2(0, 9)
 rotation = 1.5708
 shape = SubResource("SeparationRayShape2D_6mv8n")
 
-[node name="wisk_right" parent="." index="9" instance=ExtResource("3_lvclt")]
+[node name="wisk_right" parent="." index="10" instance=ExtResource("3_lvclt")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="wisk_right" index="0"]
 position = Vector2(15, 17)
 shape = SubResource("RectangleShape2D_i1nth")
 debug_color = Color(0.957847, 1.05888e-06, 0.530357, 0.42)
 
-[node name="wisk_left" parent="." index="10" instance=ExtResource("3_lvclt")]
+[node name="wisk_left" parent="." index="11" instance=ExtResource("3_lvclt")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="wisk_left" index="0"]
 position = Vector2(-15, 17)
 shape = SubResource("RectangleShape2D_i1nth")
 debug_color = Color(0.975807, 0, 0.416634, 0.42)
+
+[connection signal="area_entered" from="HurtBox" to="." method="_on_hurt_box_area_entered"]
