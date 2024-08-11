@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://df34u5x6gl7ak"]
+
+[ext_resource type="PackedScene" uid="uid://dr5kxssl071ba" path="res://player/Player.tscn" id="1_hdets"]
+[ext_resource type="TileSet" uid="uid://nqljawseaeqr" path="res://oakWoods/oak_woods_tileset.tres" id="2_xj1ip"]
+[ext_resource type="TileSet" uid="uid://bvsdancmhpy8j" path="res://props/PropsTileset.tres" id="3_81l3u"]
+
+[node name="Level" type="Node2D"]
+
+[node name="Player" parent="." instance=ExtResource("1_hdets")]
+position = Vector2(0, 64)
+
+[node name="BG" type="TileMap" parent="."]
+format = 2
+
+[node name="MAIN" type="TileMap" parent="."]
+tile_set = ExtResource("2_xj1ip")
+format = 2
+layer_0/tile_data = PackedInt32Array(327679, 65537, 0, 262144, 65537, 0, 262145, 65537, 0, 262146, 65537, 0, 262147, 65537, 0, 262148, 65537, 0, 262149, 65537, 0, 262150, 65537, 0, 262151, 65537, 0, 262152, 65537, 0, 262153, 65537, 0, 262154, 65537, 0, 262155, 65537, 0, 262156, 65537, 0, 262157, 65537, 0, 262158, 65537, 0, 262159, 65537, 0, 262160, 65537, 0, 262161, 65537, 0, 262162, 65537, 0, 262163, 65537, 0, 262164, 65537, 0, 262165, 65537, 0, 262166, 65537, 0, 262167, 65537, 0, 262168, 65537, 0, 262169, 65537, 0, 262170, 65537, 0, 262171, 65537, 0, 262172, 65537, 0, 262173, 65537, 0, 262174, 65537, 0, 262175, 65537, 0, 262176, 65537, 0, 262177, 65537, 0, 262178, 65537, 0, 262179, 65537, 0, 262180, 65537, 0)
+
+[node name="FRONT" type="TileMap" parent="."]
+format = 2
+
+[node name="PROPS" type="TileMap" parent="."]
+z_index = -1
+position = Vector2(1, 0)
+tile_set = ExtResource("3_81l3u")
+format = 2
+layer_0/tile_data = PackedInt32Array(196610, 0, 0)

@@ -1044,36 +1044,39 @@ size = Vector2(7, 6.5)
 collision_layer = 0
 script = ExtResource("1_4wwkc")
 
+[node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(2, -23)
+sprite_frames = ExtResource("1_nhrqf")
+animation = &"idle"
+
 [node name="right_force2" type="CollisionShape2D" parent="."]
 position = Vector2(-3, -10)
 rotation = -1.5708
 shape = ExtResource("3_i5lv3")
-disabled = true
 
 [node name="left_force2" type="CollisionShape2D" parent="."]
 position = Vector2(-3, -10)
 rotation = 1.5708
 shape = ExtResource("4_swmrr")
-disabled = true
 
 [node name="right_force" type="CollisionShape2D" parent="."]
-position = Vector2(0, 4)
+position = Vector2(-3, 8)
 rotation = -1.5708
-shape = ExtResource("3_c7tma")
+shape = ExtResource("3_i5lv3")
 
 [node name="left_force" type="CollisionShape2D" parent="."]
-position = Vector2(0, 4)
+position = Vector2(-3, 8)
 rotation = 1.5708
-shape = ExtResource("4_efqwh")
+shape = ExtResource("4_swmrr")
 
 [node name="head_force" type="CollisionShape2D" parent="."]
-position = Vector2(0, 4)
+position = Vector2(-3, 0)
 rotation = 3.14159
-shape = ExtResource("5_3eyw2")
+shape = ExtResource("5_qo0el")
 
 [node name="foot_force" type="CollisionShape2D" parent="."]
-position = Vector2(0, 4)
-shape = ExtResource("14_s8vxt")
+position = Vector2(-3, 0)
+shape = ExtResource("6_p7dme")
 
 [node name="PlayerCamera" type="Camera2D" parent="."]
 position = Vector2(-1, 0)
@@ -1092,6 +1095,7 @@ libraries = {
 }
 
 [node name="poutre" type="StaticBody2D" parent="."]
+visible = false
 collision_layer = 0
 script = ExtResource("7_huw4r")
 
@@ -1101,6 +1105,7 @@ shape = SubResource("RectangleShape2D_qk748")
 debug_color = Color(0.713429, 0.482696, 0.0873926, 0.42)
 
 [node name="wallgrab_hitbox_r" type="StaticBody2D" parent="."]
+visible = false
 collision_layer = 0
 script = ExtResource("7_huw4r")
 
@@ -1110,6 +1115,7 @@ shape = SubResource("RectangleShape2D_jvqjl")
 debug_color = Color(0.984459, 0, 0.34336, 0.42)
 
 [node name="wallgrab_hitbox_l" type="StaticBody2D" parent="."]
+visible = false
 collision_layer = 0
 script = ExtResource("7_huw4r")
 
@@ -1118,12 +1124,8 @@ position = Vector2(-14, -13.5)
 shape = SubResource("RectangleShape2D_jvqjl")
 debug_color = Color(0.984459, 0, 0.34336, 0.42)
 
-[node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(2, -23)
-sprite_frames = ExtResource("1_nhrqf")
-animation = &"walking"
-
 [node name="box_feet" parent="." instance=ExtResource("19_aa6ea")]
+visible = false
 collision_layer = 2
 collision_mask = 262
 Type = 2
@@ -1133,10 +1135,10 @@ DamageAmout = 0.0
 [node name="feet_shape" type="CollisionShape2D" parent="box_feet"]
 position = Vector2(-3, 15)
 shape = ExtResource("16_kiabn")
-disabled = true
 debug_color = Color(0, 1, 0, 0.419608)
 
 [node name="box_body" parent="." instance=ExtResource("19_aa6ea")]
+visible = false
 collision_layer = 2
 collision_mask = 262
 Type = 1
@@ -1144,8 +1146,8 @@ Ownership = "player"
 DamageAmout = 0.0
 
 [node name="body_shape" type="CollisionShape2D" parent="box_body"]
-position = Vector2(-3, 3.5)
-shape = SubResource("RectangleShape2D_esonr")
+position = Vector2(-3, 0.5)
+shape = ExtResource("17_k38u3")
 debug_color = Color(0.93841, 0.823708, 0.358609, 0.419608)
 
 [node name="box_head" parent="." instance=ExtResource("19_aa6ea")]
@@ -1158,7 +1160,6 @@ DamageAmout = 0.0
 [node name="head_shape" type="CollisionShape2D" parent="box_head"]
 position = Vector2(-3, -16.5)
 shape = ExtResource("18_5fm1l")
-disabled = true
 debug_color = Color(0, 1, 0, 0.419608)
 
 [connection signal="area_entered" from="box_feet" to="." method="_on_feet_touched"]
