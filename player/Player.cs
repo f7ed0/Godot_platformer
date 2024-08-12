@@ -45,6 +45,8 @@ public partial class Player : CharacterBody2D
 
 	public double blink_variable = 0;
 
+	public bool got_hurt = false;
+
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
@@ -84,6 +86,7 @@ public partial class Player : CharacterBody2D
 	public void Hurt(float amount) {
 		hp -= amount;
 		was_hurt = 0;
+		got_hurt = true;
 	}
 
 	public void updateWasOnFloor(double delta) {
@@ -122,7 +125,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleFalling() {
-		animation.Play("falling");
+		animation.Queue("falling");
 	}
 	// ---------------------------------------------------------
 
@@ -152,7 +155,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleJumping() {
-		animation.Play("jumping");
+		animation.Queue("jumping");
 	}
 	// ----------------------------------------------------------
 
@@ -185,7 +188,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleIdling() {
-		animation.Play("idle");
+		animation.Queue("idle");
 	}
 	// ------------------------------------------------------------------------
 
@@ -214,7 +217,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleSliding() {
-		animation.Play("sliding_start");
+		animation.Queue("sliding_start");
 		animation.Queue("sliding");
 	}
 	// ------------------------------------------------------------------------
@@ -238,7 +241,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleCrouching() {
-		animation.Play("crouching");
+		animation.Queue("crouching");
 	}
 	// ------------------------------------------------------------------------
 
@@ -266,9 +269,9 @@ public partial class Player : CharacterBody2D
 			oldPlayerState = PlayerState.NULL;
 		}
 		if (Math.Abs(Velocity.X) > 0) {
-			animation.Play("crouch_walking");
+			animation.Queue("crouch_walking");
 		} else {
-			animation.Play("crouching");
+			animation.Queue("crouching");
 		}
 		sprite.FlipH = getDirection() < 0;
 	}
@@ -309,7 +312,7 @@ public partial class Player : CharacterBody2D
 		return HandleGroundedPhysics(velocity,delta);
 	}
 
-	public void HandleWalking() {
+	public void HandleWalking() { 
 		if (oldPlayerState == PlayerState.Walking) {
 			oldPlayerState = PlayerState.NULL;
 		}
@@ -320,7 +323,7 @@ public partial class Player : CharacterBody2D
 				animation.Play("walking");
 			}
 		} else {
-			animation.Play("idle");
+			animation.Queue("idle");
 		}
 		sprite.FlipH = getDirection() < 0;
 	}
@@ -356,7 +359,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleWallHanging() {
-		animation.Play("wall_hanging");
+		animation.Queue("wall_hanging");
 		sprite.FlipH = CanWallHangLeft();
 	}
 	// ------------------------------------------------------------------------
@@ -403,16 +406,21 @@ public partial class Player : CharacterBody2D
 		was_hurt += delta;
 		if (isHurt()) {
 			blink_variable += delta;
-			while (blink_variable > 0.3f) {
-				blink_variable =- 0.3f;
+			while (blink_variable > 0.2f) {
+				blink_variable =- 0.2f;
 			}
-			if (blink_variable > 0.15f) {
-				sprite.Modulate = new Color(1,1,1,0.5f);
+			if (blink_variable > 0.1f) {
+				sprite.Modulate = new Color(1,1,1,0.3f);
 			} else {
 				sprite.Modulate = new Color(1,1,1,1);
 			}
 		} else {
 			sprite.Modulate = new Color(1,1,1,1);
+		}
+		if (got_hurt) {
+			got_hurt = false;
+
+			// TODO FINISH PLAYER STATES
 		}
 		if (oldPlayerState != playerState) {
 			switch (playerState) {

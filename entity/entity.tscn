@@ -1,5 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://cr7o6ld6l7fur"]
+[gd_scene load_steps=6 format=3 uid="uid://cr7o6ld6l7fur"]
 
+[ext_resource type="Script" path="res://entity/entity.cs" id="1_fnud1"]
 [ext_resource type="Texture2D" uid="uid://cu5psjbn1pp5r" path="res://icon.svg" id="1_qu5n8"]
 [ext_resource type="PackedScene" uid="uid://cnspii46d7mnq" path="res://entity/HitBox.tscn" id="2_p35ea"]
 
@@ -19,6 +20,7 @@ animations = [{
 }]
 
 [node name="Entity" type="CharacterBody2D"]
+script = ExtResource("1_fnud1")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_gi1kk")
