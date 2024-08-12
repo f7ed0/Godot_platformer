@@ -41,6 +41,10 @@ public partial class Player : CharacterBody2D
 	public int wall_hang_count;
 	public double hurt_count;
 
+	public double was_hurt = 1000;
+
+	public double blink_variable = 0;
+
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
@@ -71,6 +75,15 @@ public partial class Player : CharacterBody2D
 
 	public float getDirection() {
 		return Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left");;
+	}
+
+	public bool isHurt() {
+		return was_hurt < 3f;
+	}
+
+	public void Hurt(float amount) {
+		hp -= amount;
+		was_hurt = 0;
 	}
 
 	public void updateWasOnFloor(double delta) {
@@ -291,8 +304,8 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.CrouchWalk;
 			return HandleCrouchWalk_Pysics(velocity,delta);
 		}
-		float speed = Input.IsActionPressed("sprint") ? SprintSpeed : Speed;
-		velocity.X = Mathf.MoveToward(velocity.X, direction*speed, speed*(float) delta*30f);
+		float smothed_direction = Mathf.Sign(direction)*direction*direction*1.5f;
+		velocity.X = Mathf.MoveToward(velocity.X, smothed_direction*Speed, Speed*(float) delta*30f);
 		return HandleGroundedPhysics(velocity,delta);
 	}
 
@@ -301,7 +314,7 @@ public partial class Player : CharacterBody2D
 			oldPlayerState = PlayerState.NULL;
 		}
 		if (Math.Abs(Velocity.X) > 0) {
-			if (Input.IsActionPressed("sprint") ) {
+			if ( Velocity.X > Speed*1.2f ) {
 				animation.Play("sprinting");
 			} else {
 				animation.Play("walking");
@@ -387,6 +400,20 @@ public partial class Player : CharacterBody2D
 	}
 
 	public override void _Process(double delta) {
+		was_hurt += delta;
+		if (isHurt()) {
+			blink_variable += delta;
+			while (blink_variable > 0.3f) {
+				blink_variable =- 0.3f;
+			}
+			if (blink_variable > 0.15f) {
+				sprite.Modulate = new Color(1,1,1,0.5f);
+			} else {
+				sprite.Modulate = new Color(1,1,1,1);
+			}
+		} else {
+			sprite.Modulate = new Color(1,1,1,1);
+		}
 		if (oldPlayerState != playerState) {
 			switch (playerState) {
 				case PlayerState.Idle :
@@ -482,8 +509,8 @@ public partial class Player : CharacterBody2D
 	private void _on_body_touch(Area2D area) {
 		try {
 			HitBox hitBox = (HitBox) area;
-			if (hitBox.Type == HitBoxType.Hit || hitBox.Type == HitBoxType.Both) {
-				hp -= hitBox.DamageAmout;
+			if (hitBox.Type == HitBoxType.Hit || hitBox.Type == HitBoxType.Both && hitBox.Ownership != "player") {
+				Hurt(hitBox.DamageAmout);
 			}
 		} catch {
 			GD.Print("UNDEFINED TYPE OF HITBOX");
@@ -503,7 +530,7 @@ public partial class Player : CharacterBody2D
 			HitBox box = (HitBox) area;  
 			
 			if ( box.Type == HitBoxType.Hurt || box.Type == HitBoxType.Both ) {
-				if ( box.Ownership == "goomba" ) {
+				if ( box.Ownership == "goomba" && Velocity.Y > 0 && was_hurt > 1.0f) {
 					Velocity = new Vector2(Velocity.X, Velocity.Y < -400.0f ? Velocity.Y : -400.0f );
 					area.GetParent<goomba>().Die();
 				}

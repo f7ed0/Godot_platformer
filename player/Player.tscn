@@ -17,7 +17,7 @@
 [ext_resource type="Shape2D" uid="uid://b8qj0kmmc6qha" path="res://player/hitboxes/crouch/down.tres" id="14_s8vxt"]
 [ext_resource type="Shape2D" uid="uid://riwt2jhgb6xu" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
 [ext_resource type="Shape2D" uid="uid://blgq5tqf65jmf" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
-[ext_resource type="Shape2D" uid="uid://bh1id6tpjo72u" path="res://player/head.tres" id="18_5fm1l"]
+[ext_resource type="Shape2D" path="res://player/head.tres" id="18_5fm1l"]
 [ext_resource type="PackedScene" uid="uid://cnspii46d7mnq" path="res://entity/HitBox.tscn" id="19_aa6ea"]
 
 [sub_resource type="Animation" id="Animation_5sqsk"]
@@ -1047,7 +1047,7 @@ script = ExtResource("1_4wwkc")
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(2, -23)
 sprite_frames = ExtResource("1_nhrqf")
-animation = &"idle"
+animation = &"crouch_walk"
 
 [node name="right_force2" type="CollisionShape2D" parent="."]
 position = Vector2(-3, -10)
@@ -1095,7 +1095,6 @@ libraries = {
 }
 
 [node name="poutre" type="StaticBody2D" parent="."]
-visible = false
 collision_layer = 0
 script = ExtResource("7_huw4r")
 
@@ -1105,7 +1104,6 @@ shape = SubResource("RectangleShape2D_qk748")
 debug_color = Color(0.713429, 0.482696, 0.0873926, 0.42)
 
 [node name="wallgrab_hitbox_r" type="StaticBody2D" parent="."]
-visible = false
 collision_layer = 0
 script = ExtResource("7_huw4r")
 
@@ -1115,7 +1113,6 @@ shape = SubResource("RectangleShape2D_jvqjl")
 debug_color = Color(0.984459, 0, 0.34336, 0.42)
 
 [node name="wallgrab_hitbox_l" type="StaticBody2D" parent="."]
-visible = false
 collision_layer = 0
 script = ExtResource("7_huw4r")
 
@@ -1125,7 +1122,6 @@ shape = SubResource("RectangleShape2D_jvqjl")
 debug_color = Color(0.984459, 0, 0.34336, 0.42)
 
 [node name="box_feet" parent="." instance=ExtResource("19_aa6ea")]
-visible = false
 collision_layer = 2
 collision_mask = 262
 Type = 2
@@ -1138,7 +1134,6 @@ shape = ExtResource("16_kiabn")
 debug_color = Color(0, 1, 0, 0.419608)
 
 [node name="box_body" parent="." instance=ExtResource("19_aa6ea")]
-visible = false
 collision_layer = 2
 collision_mask = 262
 Type = 1
