@@ -8,6 +8,8 @@ public partial class entity : CharacterBody2D
 	public bool dead = false;
 	[Export]
 	public double respawn_time = 10.0f;
+	[Export]
+	public float hp = 10.0f;
 
 	public override void _Ready()
 	{

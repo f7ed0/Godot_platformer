@@ -47,6 +47,8 @@ public partial class Player : CharacterBody2D
 
 	public bool got_hurt = false;
 
+	private double attack_duration = 0;
+
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
@@ -180,6 +182,7 @@ public partial class Player : CharacterBody2D
 		}
 		else if ( Input.IsActionJustPressed("attack") ) {
 			playerState = PlayerState.Attack;
+			attack_duration = 0;
 			return HandleAttack_Physics(velocity, delta);
 		}
 		// Player fall
@@ -390,7 +393,10 @@ public partial class Player : CharacterBody2D
 
 	// --------------------------- ATTACKING ----------------------------------
 	public Vector2 HandleAttack_Physics(Vector2 velocity, double delta) {
-		if ( !Input.IsActionPressed("attack") ) {
+		attack_duration += delta;
+		while( attack_duration > 0.833 ) attack_duration -= 0.833;
+		bool can_cancel = (attack_duration > 0.33333 && attack_duration < 0.41663) || attack_duration > 0.75;
+		if ( !Input.IsActionPressed("attack") && can_cancel ) {
 			GD.Print("RELEASE");
 			playerState = PlayerState.Idle;
 			HandleIdling_Pysics(velocity,delta);

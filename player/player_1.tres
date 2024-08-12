@@ -169,7 +169,7 @@ region = Rect2(960, 0, 120, 80)
 atlas = ExtResource("2_82xn6")
 region = Rect2(1080, 0, 120, 80)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_364ap"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_5is88"]
 atlas = ExtResource("11_kaevg")
 region = Rect2(0, 0, 120, 80)
 
@@ -425,7 +425,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_364ap")
+"texture": SubResource("AtlasTexture_5is88")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_socqj")
@@ -456,7 +456,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"sword_swing",
-"speed": 10.0
+"speed": 12.0
 }, {
 "frames": [{
 "duration": 1.0,
