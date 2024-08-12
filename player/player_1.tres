@@ -454,7 +454,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_u3fo8")
 }],
-"loop": false,
+"loop": true,
 "name": &"sword_swing",
 "speed": 10.0
 }, {

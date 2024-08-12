@@ -5,7 +5,7 @@ using System;
 
 public enum PlayerState
 {
-	Idle,Walking,Jumping,Crouched,CrouchWalk,Sliding,Falling,WallHanging,NULL
+	Idle,Walking,Jumping,Crouched,CrouchWalk,Sliding,Falling,WallHanging,Hit,Attack,NULL
 }
 
 public partial class Player : CharacterBody2D
@@ -125,7 +125,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleFalling() {
-		animation.Queue("falling");
+		animation.Play("falling");
 	}
 	// ---------------------------------------------------------
 
@@ -155,7 +155,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleJumping() {
-		animation.Queue("jumping");
+		animation.Play("jumping");
 	}
 	// ----------------------------------------------------------
 
@@ -178,6 +178,10 @@ public partial class Player : CharacterBody2D
 			playerState = PlayerState.Crouched;
 			return HandleCrouching_Pysics(velocity,delta);
 		}
+		else if ( Input.IsActionJustPressed("attack") ) {
+			playerState = PlayerState.Attack;
+			return HandleAttack_Physics(velocity, delta);
+		}
 		// Player fall
 		else if ( !IsOnFloor() ) {
 			playerState = PlayerState.Falling;
@@ -188,7 +192,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleIdling() {
-		animation.Queue("idle");
+		animation.Play("idle");
 	}
 	// ------------------------------------------------------------------------
 
@@ -217,7 +221,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleSliding() {
-		animation.Queue("sliding_start");
+		animation.Play("sliding_start");
 		animation.Queue("sliding");
 	}
 	// ------------------------------------------------------------------------
@@ -241,7 +245,7 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleCrouching() {
-		animation.Queue("crouching");
+		animation.Play("crouching");
 	}
 	// ------------------------------------------------------------------------
 
@@ -269,9 +273,9 @@ public partial class Player : CharacterBody2D
 			oldPlayerState = PlayerState.NULL;
 		}
 		if (Math.Abs(Velocity.X) > 0) {
-			animation.Queue("crouch_walking");
+			animation.Play("crouch_walking");
 		} else {
-			animation.Queue("crouching");
+			animation.Play("crouching");
 		}
 		sprite.FlipH = getDirection() < 0;
 	}
@@ -323,7 +327,7 @@ public partial class Player : CharacterBody2D
 				animation.Play("walking");
 			}
 		} else {
-			animation.Queue("idle");
+			animation.Play("idle");
 		}
 		sprite.FlipH = getDirection() < 0;
 	}
@@ -359,8 +363,45 @@ public partial class Player : CharacterBody2D
 	}
 
 	public void HandleWallHanging() {
-		animation.Queue("wall_hanging");
+		animation.Play("wall_hanging");
 		sprite.FlipH = CanWallHangLeft();
+	}
+	// ------------------------------------------------------------------------
+
+	// ---------------------- HIT ---------------------------------------------
+	public Vector2 HandleHit_Physics(Vector2 velocity, double delta) {
+		if ( was_hurt > 0.3f ) {
+			playerState = PlayerState.Idle;
+			return HandleIdling_Pysics(velocity,delta);
+		}
+		if ( IsOnFloor() ) {
+			velocity = HandleGroundedPhysics(velocity,delta);
+		} else {
+			velocity = HandleAerialPhysics(velocity,delta);
+		}
+		velocity.X = Mathf.MoveToward(velocity.X, 0, Speed*(float) delta);
+		return velocity;
+	}
+
+	public void HandleHit() {
+		animation.Play("hit");
+	}
+	// ------------------------------------------------------------------------
+
+	// --------------------------- ATTACKING ----------------------------------
+	public Vector2 HandleAttack_Physics(Vector2 velocity, double delta) {
+		if ( !Input.IsActionPressed("attack") ) {
+			GD.Print("RELEASE");
+			playerState = PlayerState.Idle;
+			HandleIdling_Pysics(velocity,delta);
+		}
+		velocity = IsOnFloor() ? HandleGroundedPhysics(velocity,delta) : HandleAerialPhysics(velocity,delta);
+		velocity.X = Mathf.MoveToward(velocity.X, 0, Speed*(float) delta*5.0f);
+		return velocity;
+	}
+
+	public void HandleAttack() {
+		animation.Play("attack");
 	}
 	// ------------------------------------------------------------------------
 
@@ -419,8 +460,7 @@ public partial class Player : CharacterBody2D
 		}
 		if (got_hurt) {
 			got_hurt = false;
-
-			// TODO FINISH PLAYER STATES
+			playerState = PlayerState.Hit;
 		}
 		if (oldPlayerState != playerState) {
 			switch (playerState) {
@@ -447,6 +487,12 @@ public partial class Player : CharacterBody2D
 					break;
 				case PlayerState.WallHanging:
 					HandleWallHanging();
+					break;
+				case PlayerState.Hit:
+					HandleHit();
+					break;
+				case PlayerState.Attack:
+					HandleAttack();
 					break;
 			}
 
@@ -500,6 +546,12 @@ public partial class Player : CharacterBody2D
 			case PlayerState.WallHanging:
 				velocity = HandleWallHanging_Pysics(velocity,delta);
 				break;
+			case PlayerState.Hit :
+				velocity = HandleHit_Physics(velocity,delta);
+				break;
+			case PlayerState.Attack :
+				velocity = HandleAttack_Physics(velocity,delta);
+				break;
 		}
 
 		Velocity = velocity;
@@ -515,6 +567,9 @@ public partial class Player : CharacterBody2D
 
 
 	private void _on_body_touch(Area2D area) {
+		if (isHurt()) {
+			return;
+		}
 		try {
 			HitBox hitBox = (HitBox) area;
 			if (hitBox.Type == HitBoxType.Hit || hitBox.Type == HitBoxType.Both && hitBox.Ownership != "player") {

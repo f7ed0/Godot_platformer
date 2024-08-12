@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3 uid="uid://dr5kxssl071ba"]
+[gd_scene load_steps=41 format=3 uid="uid://dr5kxssl071ba"]
 
 [ext_resource type="Script" path="res://player/Player.cs" id="1_4wwkc"]
 [ext_resource type="SpriteFrames" uid="uid://vdxng17jev72" path="res://player/player_1.tres" id="1_nhrqf"]
@@ -17,7 +17,7 @@
 [ext_resource type="Shape2D" uid="uid://b8qj0kmmc6qha" path="res://player/hitboxes/crouch/down.tres" id="14_s8vxt"]
 [ext_resource type="Shape2D" uid="uid://riwt2jhgb6xu" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
 [ext_resource type="Shape2D" uid="uid://blgq5tqf65jmf" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
-[ext_resource type="Shape2D" path="res://player/head.tres" id="18_5fm1l"]
+[ext_resource type="Shape2D" uid="uid://bh1id6tpjo72u" path="res://player/head.tres" id="18_5fm1l"]
 [ext_resource type="PackedScene" uid="uid://cnspii46d7mnq" path="res://entity/HitBox.tscn" id="19_aa6ea"]
 
 [sub_resource type="Animation" id="Animation_5sqsk"]
@@ -108,6 +108,48 @@ tracks/1/keys = {
 "args": ["standing"],
 "method": &"play"
 }]
+}
+
+[sub_resource type="Animation" id="Animation_8kn0s"]
+resource_name = "hit"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSprite:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1e-05),
+"update": 1,
+"values": [&"Hurt"]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimationPlayer/HitboxAnimator")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": ["standing"],
+"method": &"play"
+}]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PlayerSprite:modulate")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1.06464, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(1, 0, 0, 1), Color(1, 1, 1, 1)]
 }
 
 [sub_resource type="Animation" id="Animation_w265p"]
@@ -320,9 +362,8 @@ tracks/1/keys = {
 }]
 }
 
-[sub_resource type="Animation" id="Animation_8kn0s"]
-resource_name = "hit"
-length = 0.3
+[sub_resource type="Animation" id="Animation_xam6g"]
+resource_name = "attack"
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -333,7 +374,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1e-05),
 "update": 1,
-"values": [&"Hurt"]
+"values": [&"sword_swing"]
 }
 tracks/1/type = "method"
 tracks/1/imported = false
@@ -349,21 +390,10 @@ tracks/1/keys = {
 "method": &"play"
 }]
 }
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("PlayerSprite:modulate")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2),
-"transitions": PackedFloat32Array(1, 1.06464, 1),
-"update": 0,
-"values": [Color(1, 1, 1, 1), Color(1, 0, 0, 1), Color(1, 1, 1, 1)]
-}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_5r7tx"]
 _data = {
+"attack": SubResource("Animation_xam6g"),
 "crouch_walking": SubResource("Animation_5sqsk"),
 "crouching": SubResource("Animation_ry4e1"),
 "falling": SubResource("Animation_7gpm4"),
@@ -1099,7 +1129,9 @@ script = ExtResource("1_4wwkc")
 [node name="PlayerSprite" type="AnimatedSprite2D" parent="."]
 position = Vector2(2, -23)
 sprite_frames = ExtResource("1_nhrqf")
-animation = &"grab_wall"
+animation = &"sword_swing"
+frame = 9
+frame_progress = 1.0
 
 [node name="right_force2" type="CollisionShape2D" parent="."]
 visible = false
