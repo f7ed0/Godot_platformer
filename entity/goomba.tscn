@@ -86,6 +86,7 @@ size = Vector2(4, 4)
 collision_layer = 0
 collision_mask = 7
 script = ExtResource("2_7pqo4")
+default_hp = 30.0
 
 [node name="AnimatedSprite2D" parent="." index="0"]
 position = Vector2(6, 1)
@@ -97,6 +98,7 @@ frame_progress = 0.0174884
 [node name="HurtBox" parent="." index="1" instance=ExtResource("4_rd2fj")]
 position = Vector2(0, -10)
 collision_layer = 4
+collision_mask = 262
 Type = 1
 Ownership = "goomba"
 
@@ -107,6 +109,7 @@ debug_color = Color(2.14182e-06, 0.649242, 0.151707, 0.42)
 [node name="HitBox" parent="." index="2"]
 position = Vector2(0, 1)
 collision_layer = 4
+collision_mask = 6
 Ownership = "goomba"
 
 [node name="CollisionShape2D" parent="HitBox" index="0"]
@@ -159,3 +162,4 @@ shape = SubResource("RectangleShape2D_i1nth")
 debug_color = Color(0.975807, 0, 0.416634, 0.42)
 
 [connection signal="area_entered" from="HurtBox" to="." method="_on_hurt_box_area_entered"]
+[connection signal="area_entered" from="HitBox" to="." method="_on_hit_box_area_entered"]

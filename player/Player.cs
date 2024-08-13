@@ -49,6 +49,8 @@ public partial class Player : CharacterBody2D
 
 	private double attack_duration = 0;
 
+	private Node2D hitboxes;
+
 	// Get the gravity from the project settings to be synced with RigidBody nodes.
 	public float ground_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
 	public float jump_gravity = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle()*0.25f;
@@ -62,6 +64,7 @@ public partial class Player : CharacterBody2D
 		wallgrab[1] = GetNode<poutre>("wallgrab_hitbox_r");
 		HUD = (Hud) tree.Root.GetNode("/root/Hud");
 		ptre = GetNode<poutre>("poutre");
+		hitboxes = GetNode<Node2D>("Hitboxes");
 		default_zoom = cam.Zoom.X;
 		standart_zoom = cam.Zoom;
 		sprite.Play();
@@ -429,6 +432,8 @@ public partial class Player : CharacterBody2D
 		} else {
 			sprite.Position = sprite.FlipH ? new Vector2(-8, sprite.Position.Y) : new Vector2(2, sprite.Position.Y);
 		}
+		hitboxes.GetNode<Area2D>("Attack").Position = sprite.FlipH ? new Vector2(-45,-5.5f) : new Vector2(39, -5.5f);
+		
 	}
 
 	public void HandleCamera(double delta) {
@@ -578,7 +583,7 @@ public partial class Player : CharacterBody2D
 		}
 		try {
 			HitBox hitBox = (HitBox) area;
-			if (hitBox.Type == HitBoxType.Hit || hitBox.Type == HitBoxType.Both && hitBox.Ownership != "player") {
+			if (hitBox.Type == HitBoxType.Hit || hitBox.Type == HitBoxType.Both && !hitBox.Ownership.StartsWith("player")) {
 				Hurt(hitBox.DamageAmout);
 			}
 		} catch {
@@ -607,7 +612,6 @@ public partial class Player : CharacterBody2D
 		} catch {
 			GD.Print("UNDEFINED TYPE OF HITBOX");
 		}
-
 	}
 
 }

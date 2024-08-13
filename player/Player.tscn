@@ -17,7 +17,7 @@
 [ext_resource type="Shape2D" uid="uid://b8qj0kmmc6qha" path="res://player/hitboxes/crouch/down.tres" id="14_s8vxt"]
 [ext_resource type="Shape2D" uid="uid://riwt2jhgb6xu" path="res://player/hitboxes/standing/feet.tres" id="16_kiabn"]
 [ext_resource type="Shape2D" uid="uid://blgq5tqf65jmf" path="res://player/hitboxes/standing/body.tres" id="17_k38u3"]
-[ext_resource type="Shape2D" path="res://player/head.tres" id="18_5fm1l"]
+[ext_resource type="Shape2D" uid="uid://bh1id6tpjo72u" path="res://player/head.tres" id="18_5fm1l"]
 [ext_resource type="PackedScene" uid="uid://cnspii46d7mnq" path="res://entity/HitBox.tscn" id="19_aa6ea"]
 
 [sub_resource type="Animation" id="Animation_xam6g"]
@@ -1138,7 +1138,7 @@ size = Vector2(15, 15)
 size = Vector2(7, 6.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ov6ee"]
-size = Vector2(34, 45)
+size = Vector2(41, 45)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 0
@@ -1237,9 +1237,9 @@ debug_color = Color(0.984459, 0, 0.34336, 0.42)
 [node name="box_feet" parent="." instance=ExtResource("19_aa6ea")]
 visible = false
 collision_layer = 2
-collision_mask = 262
+collision_mask = 260
 Type = 2
-Ownership = "player"
+Ownership = "player_feet"
 DamageAmout = 0.0
 
 [node name="feet_shape" type="CollisionShape2D" parent="box_feet"]
@@ -1249,7 +1249,6 @@ disabled = true
 debug_color = Color(0, 1, 0, 0.419608)
 
 [node name="box_body" parent="." instance=ExtResource("19_aa6ea")]
-visible = false
 collision_layer = 2
 collision_mask = 262
 Type = 1
@@ -1264,7 +1263,7 @@ debug_color = Color(0.93841, 0.823708, 0.358609, 0.419608)
 [node name="box_head" parent="." instance=ExtResource("19_aa6ea")]
 visible = false
 collision_layer = 2
-collision_mask = 262
+collision_mask = 260
 Type = 2
 Ownership = "player"
 DamageAmout = 0.0
@@ -1278,11 +1277,13 @@ debug_color = Color(0, 1, 0, 0.419608)
 [node name="Hitboxes" type="Node2D" parent="."]
 
 [node name="Attack" parent="Hitboxes" instance=ExtResource("19_aa6ea")]
+position = Vector2(38, -5.5)
+collision_layer = 2
+collision_mask = 4
 Ownership = "player_weapon"
 DamageAmout = 15.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitboxes/Attack"]
-position = Vector2(42, -5.5)
 shape = SubResource("RectangleShape2D_ov6ee")
 disabled = true
 debug_color = Color(0.981808, 0, 0.367808, 0.42)

@@ -55,7 +55,16 @@ public partial class goomba : entity
 	}
 
 
+	private void _on_hit_box_area_entered(Area2D area) {
+		try {
+			HitBox box = (HitBox) area;
 
+			if ( box.Type == HitBoxType.Hit && box.Ownership == "player_weapon") {
+				hp -= box.DamageAmout;
+				GD.Print(hp);
+			}
+		} catch {
+			GD.PushError("UNDEFINED TYPE OF HITBOX");
+		}
+	}
 }
-
-
